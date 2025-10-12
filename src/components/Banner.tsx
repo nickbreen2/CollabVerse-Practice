@@ -10,7 +10,7 @@ export default function Banner({ src, theme }: BannerProps) {
   const bgColor = theme === 'LIGHT' ? 'bg-white' : 'bg-black'
 
   return (
-    <div className={`relative h-72 w-full overflow-hidden rounded-t-3xl ${bgColor}`}>
+    <div className={`relative h-full w-full overflow-hidden ${bgColor}`}>
       {src && (
         <Image
           src={src}
