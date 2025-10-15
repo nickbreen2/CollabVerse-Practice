@@ -176,7 +176,7 @@ export default function MyStorePage() {
                   min-h-[800px]
                   px-6 py-10
                   sm:px-10
-                  -translate-y-44
+                  -translate-y-64
                   transition-transform duration-300
                   ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}
                 `}
