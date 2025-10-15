@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { toast } from '@/components/ui/use-toast'
 import { CreatorStore } from '@prisma/client'
 import { Instagram, Youtube, Music, Eye, Pencil } from 'lucide-react'
+import { TikTokIcon } from '@/components/icons/TikTokIcon'
 
 export default function MyStorePage() {
   const [store, setStore] = useState<CreatorStore | null>(null)
@@ -93,7 +94,7 @@ export default function MyStorePage() {
   const socialIcons: Record<string, any> = {
     instagram: Instagram,
     youtube: Youtube,
-    tiktok: Music,
+    tiktok: TikTokIcon,
     snapchat: Music,
   }
   
