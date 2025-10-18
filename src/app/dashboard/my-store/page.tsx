@@ -1,10 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import StorePreviewCard from '@/components/StorePreviewCard'
-import EditPanel from '@/components/EditPanel'
+import EditSidebar from '@/components/store/EditSidebar'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
-import EditPreviewToggle from '@/components/store/EditPreviewToggle'
 import EmailConnectPill from '@/components/store/EmailConnectPill'
 import Banner from '@/components/Banner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -12,12 +10,17 @@ import { toast } from '@/components/ui/use-toast'
 import { CreatorStore } from '@prisma/client'
 import { Eye, Pencil, Plus } from 'lucide-react'
 import { getPlatformIcon } from '@/components/icons/PlatformIcons'
-import { getPlatformById } from '@/lib/platformCategories'
+import { getPlatformById, Platform } from '@/lib/platformCategories'
+import LinkManagerModal from '@/components/store/LinkManagerModal'
+import AddLinkModal from '@/components/store/AddLinkModal'
 
 export default function MyStorePage() {
   const [store, setStore] = useState<CreatorStore | null>(null)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<'preview' | 'edit'>('preview')
+  const [showLinkManagerModal, setShowLinkManagerModal] = useState(false)
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   useEffect(() => {
     fetchStore()
@@ -107,11 +110,39 @@ export default function MyStorePage() {
     })
   }
 
-  const handleOpenLinkManager = () => {
-    // Trigger the link manager to open
-    if (typeof window !== 'undefined' && (window as any).__openLinkManager) {
-      (window as any).__openLinkManager()
+  const handleQuickAddLink = () => {
+    setShowLinkManagerModal(true)
+  }
+
+  const handleSelectPlatform = (platform: Platform) => {
+    setSelectedPlatform(platform)
+    setShowAddModal(true)
+  }
+
+  const handleAddLink = async (url: string) => {
+    if (!selectedPlatform || !store) return
+
+    const social = (store.social as any[]) || []
+    const newLinks = [...social]
+    const existingIndex = newLinks.findIndex((l) => l.network === selectedPlatform.id)
+
+    if (existingIndex !== -1) {
+      newLinks[existingIndex] = { network: selectedPlatform.id, url }
+    } else {
+      newLinks.push({ network: selectedPlatform.id, url })
     }
+
+    await handleUpdate({ social: newLinks })
+    
+    toast({
+      title: 'Link added',
+      description: `${selectedPlatform.name} link has been added`,
+    })
+
+    // Close modals
+    setShowAddModal(false)
+    setShowLinkManagerModal(false)
+    setSelectedPlatform(null)
   }
 
   return (
@@ -251,21 +282,23 @@ export default function MyStorePage() {
                       )
                     })}
                     
-                    {/* ADD LINK BUTTON - Edit mode only */}
+                    {/* QUICK ADD LINK BUTTON - Edit mode only */}
                     {isEditing && (
                       <button
-                        onClick={handleOpenLinkManager}
+                        onClick={handleQuickAddLink}
                         aria-label="Add a new link"
                         title="Add a new link"
                         className="
                           w-11 h-11 rounded-full 
                           flex items-center justify-center
                           transition-all duration-200
-                          hover:bg-gray-100 dark:hover:bg-gray-800
+                          bg-gray-100 dark:bg-gray-800
+                          hover:bg-gray-200 dark:hover:bg-gray-700
                           hover:ring-2 hover:ring-purple-500/40
                           focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
                           text-gray-600 dark:text-gray-400
                           hover:text-purple-600 dark:hover:text-purple-400
+                          shadow-sm hover:shadow-md
                         "
                       >
                         <Plus className="w-5 h-5" />
@@ -298,12 +331,31 @@ export default function MyStorePage() {
               
               {/* SCROLLABLE CONTENT */}
               <div className="h-full overflow-y-auto">
-                <EditPanel store={store} onUpdate={handleUpdate} onOpenLinkManager={handleOpenLinkManager} />
+                <EditSidebar store={store} onUpdate={handleUpdate} />
               </div>
             </div>
           </aside>
         </div>
       </div>
+
+      {/* LINK MANAGER MODAL */}
+      <LinkManagerModal
+        open={showLinkManagerModal}
+        onClose={() => setShowLinkManagerModal(false)}
+        onSelectPlatform={handleSelectPlatform}
+        addedPlatformIds={social.map(link => link.network)}
+      />
+
+      {/* ADD LINK MODAL (for entering URL) */}
+      <AddLinkModal
+        platform={selectedPlatform}
+        open={showAddModal}
+        onClose={() => {
+          setShowAddModal(false)
+          setSelectedPlatform(null)
+        }}
+        onAdd={handleAddLink}
+      />
     </div>
   )
 }

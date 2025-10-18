@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown } from 'lucide-react'
+import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
@@ -149,7 +150,17 @@ export default function DashboardNav({ user }: DashboardNavProps) {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/dashboard/settings" className="flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleSignOut} 
+              className="cursor-pointer bg-[#FFF1F1] text-[#FA0606] hover:bg-[#FFE5E5] focus:bg-[#FFE5E5] focus:text-[#FA0606]"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

@@ -1,6 +1,6 @@
-import { CreatorStore, Theme } from '@prisma/client'
+import { CreatorStore, Theme, AccountStatus } from '@prisma/client'
 
-export type { CreatorStore, Theme }
+export type { CreatorStore, Theme, AccountStatus }
 
 export interface SocialLink {
   network: string
