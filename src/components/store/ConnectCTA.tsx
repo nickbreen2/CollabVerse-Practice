@@ -47,14 +47,14 @@ export default function ConnectCTA({
       
       {/* Button */}
       <div className="relative px-4 pb-4 pointer-events-auto">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-72 mx-auto">
           <Button
             onClick={onConnect}
             variant={theme === "LIGHT" ? "default" : "secondary"}
             className={cn(
-              "w-full h-12 sm:h-14 rounded-full px-5 sm:px-7",
-              "text-sm sm:text-base font-semibold",
-              "flex items-center justify-center gap-2.5",
+              "w-full h-14 rounded-full px-4",
+              "text-sm font-semibold",
+              "flex items-center justify-center gap-2",
               "shadow-lg hover:shadow-xl",
               "transition-all duration-200 hover:scale-[1.02]",
               theme === "DARK" && "bg-white hover:bg-gray-100 text-gray-900 shadow-white/10"
@@ -66,7 +66,7 @@ export default function ConnectCTA({
             
             {/* Avatar */}
             <span className={cn(
-              "relative inline-flex h-7 w-7 sm:h-8 sm:w-8 overflow-hidden rounded-full ring-2",
+              "relative inline-flex h-6 w-6 overflow-hidden rounded-full ring-2",
               theme === "LIGHT" ? "ring-white/20" : "ring-gray-900/20"
             )}>
               <span className="absolute inset-0 bg-gradient-to-br from-fuchsia-500 to-indigo-500" aria-hidden />

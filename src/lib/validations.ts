@@ -86,3 +86,25 @@ export type SignUpInput = z.infer<typeof SignUpSchema>
 export type SignInInput = z.infer<typeof SignInSchema>
 export type StoreUpdateInput = z.infer<typeof StoreUpdateSchema>
 
+export const CollabRequestSchema = z.object({
+  creatorId: z.string(),
+  senderName: z.string().min(1, 'Full name is required').max(100),
+  brandName: z.string().max(100).optional(),
+  senderEmail: z.string().email('Invalid email address'),
+  budget: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val || val.trim() === '') return undefined
+      const num = parseFloat(val.replace(/[^0-9.]/g, ''))
+      return isNaN(num) ? undefined : num
+    }),
+  description: z.string().max(1000).optional(),
+  links: z
+    .array(z.string().transform(normalizeUrl).pipe(z.string().url()))
+    .max(5, 'Maximum 5 links allowed')
+    .optional(),
+})
+
+export type CollabRequestInput = z.infer<typeof CollabRequestSchema>
+

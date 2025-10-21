@@ -18,6 +18,7 @@ import { getPlatformIcon } from '@/components/icons/PlatformIcons'
 import { getPlatformById, Platform } from '@/lib/platformCategories'
 import LinkManagerModal from '@/components/store/LinkManagerModal'
 import AddLinkModal from '@/components/store/AddLinkModal'
+import CollabRequestModal from '@/components/store/CollabRequestModal'
 import { CustomLink } from '@/types'
 
 export default function MyStorePage() {
@@ -31,6 +32,7 @@ export default function MyStorePage() {
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [showBioModal, setShowBioModal] = useState(false)
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
+  const [showCollabModal, setShowCollabModal] = useState(false)
 
   useEffect(() => {
     fetchStore()
@@ -116,10 +118,7 @@ export default function MyStorePage() {
     .toUpperCase() || '?'
 
   const handleConnect = () => {
-    toast({
-      title: 'Coming soon!',
-      description: 'Connection feature will be available soon.',
-    })
+    setShowCollabModal(true)
   }
 
   const handleQuickAddLink = () => {
@@ -510,6 +509,16 @@ export default function MyStorePage() {
         currentCategories={store.categories || []}
         onClose={() => setShowCategoriesModal(false)}
         onSave={handleSaveCategories}
+      />
+
+      {/* COLLAB REQUEST MODAL */}
+      <CollabRequestModal
+        open={showCollabModal}
+        onClose={() => setShowCollabModal(false)}
+        creatorId={store.id}
+        creatorAvatar={store.avatarUrl || undefined}
+        creatorName={store.displayName || undefined}
+        isSelfView={mode === 'preview'}
       />
     </div>
   )
