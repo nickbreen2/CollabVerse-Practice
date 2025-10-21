@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import EditSidebar from '@/components/store/EditSidebar'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
-import EmailConnectPill from '@/components/store/EmailConnectPill'
+import ConnectCTA from '@/components/store/ConnectCTA'
 import Banner from '@/components/Banner'
 import ProfileImageUpload from '@/components/store/ProfileImageUpload'
 import DisplayNameEditModal from '@/components/store/DisplayNameEditModal'
@@ -115,11 +115,10 @@ export default function MyStorePage() {
     .join('')
     .toUpperCase() || '?'
 
-  const handleEmailConnect = (email: string) => {
-    console.log('Connect email:', email)
+  const handleConnect = () => {
     toast({
       title: 'Coming soon!',
-      description: 'Email connection will be available soon.',
+      description: 'Connection feature will be available soon.',
     })
   }
 
@@ -210,19 +209,20 @@ export default function MyStorePage() {
               ${isEditing ? 'mr-[420px]' : ''}
             `}
           >
-            {/* PREVIEW CARD — CENTERED */}
-            <div
-              className={`
-                relative
-                w-full max-w-[540px]
-                mx-auto
-                overflow-hidden rounded-3xl border shadow-xl
-                ring-1 ring-black/10 dark:ring-white/10
-                h-fit
-                transition-all duration-300 ease-in-out
-                ${store.theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
-              `}
-            >
+            {/* Container for card + sticky button */}
+            <div className="relative w-full max-w-[540px] mx-auto">
+              {/* PREVIEW CARD — CENTERED */}
+              <div
+                className={`
+                  relative
+                  w-full
+                  overflow-hidden rounded-3xl border shadow-xl
+                  ring-1 ring-black/10 dark:ring-white/10
+                  h-fit
+                  transition-all duration-300 ease-in-out
+                  ${store.theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
+                `}
+              >
               {/* Banner/header area with toggle button */}
               <div className="relative h-48 w-full overflow-hidden">
                 <Banner src={store.bannerUrl || undefined} theme={store.theme} />
@@ -363,7 +363,7 @@ export default function MyStorePage() {
                 </div>
 
                 {/* BODY SECTION - Scrollable content area */}
-                <div className="w-full flex flex-col items-center mt-6 pb-20">
+                <div className="w-full flex flex-col items-center mt-6">
                   {/* Social Links */}
                   {(social.length > 0 || isEditing) && (
                     <div className="flex justify-center items-center gap-3 mb-4 flex-wrap">
@@ -393,14 +393,6 @@ export default function MyStorePage() {
                     </div>
                   )}
 
-                  {/* EMAIL CONNECT FORM */}
-                  <div className="w-full max-w-md mt-4">
-                    <EmailConnectPill
-                      avatarUrl={store.avatarUrl || undefined}
-                      onSubmit={handleEmailConnect}
-                    />
-                  </div>
-
                   {/* Custom Links */}
                   {visibleCustomLinks.length > 0 && (
                     <div className="w-full max-w-md space-y-3 mt-4">
@@ -426,9 +418,26 @@ export default function MyStorePage() {
                     </div>
                   )}
                 </div>
+
+                {/* Spacer for the sticky button in preview mode */}
+                {!isEditing && (
+                  <div className="h-32" aria-hidden="true" />
+                )}
               </div>
             </div>
+
+            {/* CONNECT CTA - Preview mode only, sticky to scroll container */}
+            {!isEditing && (
+              <ConnectCTA
+                avatarUrl={store.avatarUrl || undefined}
+                displayName={store.displayName || undefined}
+                theme={store.theme}
+                isEditMode={false}
+                onConnect={handleConnect}
+              />
+            )}
           </div>
+        </div>
 
           {/* EDITOR SIDEBAR - Absolutely positioned on right, slides in/out */}
           <aside 
