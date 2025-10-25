@@ -36,7 +36,7 @@ export const RESERVED_HANDLES = [
   'login',
   'signup',
   'dashboard',
-  'collabverse',
+  'collablink',
   'www',
   'auth',
   'signin',
@@ -76,7 +76,6 @@ export const StoreUpdateSchema = z.object({
         id: z.string(),
         title: z.string().max(100),
         url: z.string().transform(normalizeUrl).pipe(z.string().url()),
-        visible: z.boolean(),
       })
     )
     .optional(),

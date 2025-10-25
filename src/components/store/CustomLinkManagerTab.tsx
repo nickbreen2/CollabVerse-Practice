@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CreatorStore } from '@prisma/client'
@@ -15,68 +15,129 @@ interface CustomLinkManagerTabProps {
   store: CreatorStore
   onUpdate: (data: Partial<CreatorStore>) => void
   onBack: () => void
+  initialView?: 'manager' | 'add' | 'edit'
+  editingLinkId?: string
 }
 
 type CustomLinkView = 'manager' | 'add' | 'edit'
 
-export default function CustomLinkManagerTab({ store, onUpdate, onBack }: CustomLinkManagerTabProps) {
+export default function CustomLinkManagerTab({ store, onUpdate, onBack, initialView, editingLinkId }: CustomLinkManagerTabProps) {
   const [customLinks, setCustomLinks] = useState<CustomLink[]>((store.customLinks as CustomLink[]) || [])
-  const [currentView, setCurrentView] = useState<CustomLinkView>('manager')
+  // Default to 'add' view instead of 'manager' - go directly to create form
+  const [currentView, setCurrentView] = useState<CustomLinkView>(initialView || 'add')
   const [editingLink, setEditingLink] = useState<CustomLink | null>(null)
+
+  // Update view when initialView changes
+  useEffect(() => {
+    if (initialView) {
+      setCurrentView(initialView)
+    }
+  }, [initialView])
+
+  // Update editing link when editingLinkId changes
+  useEffect(() => {
+    if (editingLinkId) {
+      const link = customLinks.find(l => l.id === editingLinkId)
+      if (link) {
+        setEditingLink(link)
+        setCurrentView('edit')
+      }
+    }
+  }, [editingLinkId, customLinks])
 
   // Debounced save
   const debouncedSave = useDebounce((data: any) => {
     onUpdate(data)
   }, 400)
 
-  const handleAddLink = (title: string, url: string) => {
+  const handleAddLink = async (title: string, url: string) => {
     const newLink: CustomLink = {
       id: crypto.randomUUID(),
       title,
-      url,
-      visible: true
+      url
     }
 
     const newLinks = [...customLinks, newLink]
     setCustomLinks(newLinks)
-    debouncedSave({ customLinks: newLinks })
     
-    toast({
-      title: 'Link added',
-      description: `${title} has been added`,
-    })
+    try {
+      // Save immediately (no debounce) to ensure it completes before navigation
+      await onUpdate({ customLinks: newLinks })
+      
+      toast({
+        title: 'Link added',
+        description: `${title} has been added`,
+      })
 
-    setCurrentView('manager')
+      // Go back to overview after save completes
+      onBack()
+    } catch (error) {
+      // Revert on error
+      setCustomLinks(customLinks)
+      toast({
+        variant: 'destructive',
+        title: 'Failed to add link',
+        description: 'Could not save the link. Please try again.',
+      })
+    }
   }
 
-  const handleUpdateLink = (updatedLink: CustomLink) => {
+  const handleUpdateLink = async (updatedLink: CustomLink) => {
+    const previousLinks = customLinks
     const newLinks = customLinks.map(link => 
       link.id === updatedLink.id ? updatedLink : link
     )
     setCustomLinks(newLinks)
-    debouncedSave({ customLinks: newLinks })
     
-    toast({
-      title: 'Link updated',
-      description: `${updatedLink.title} has been updated`,
-    })
+    try {
+      // Save immediately (no debounce) to ensure it completes before navigation
+      await onUpdate({ customLinks: newLinks })
+      
+      toast({
+        title: 'Link updated',
+        description: `${updatedLink.title} has been updated`,
+      })
 
-    setCurrentView('manager')
-    setEditingLink(null)
+      // Go back to overview after save completes
+      onBack()
+      setEditingLink(null)
+    } catch (error) {
+      // Revert on error
+      setCustomLinks(previousLinks)
+      toast({
+        variant: 'destructive',
+        title: 'Failed to update link',
+        description: 'Could not save changes. Please try again.',
+      })
+    }
   }
 
-  const handleDeleteLink = (linkId: string) => {
+  const handleDeleteLink = async (linkId: string) => {
+    const previousLinks = customLinks
     const newLinks = customLinks.filter(link => link.id !== linkId)
     setCustomLinks(newLinks)
-    debouncedSave({ customLinks: newLinks })
     
-    toast({
-      title: 'Link removed',
-      description: 'Custom link has been removed',
-    })
+    try {
+      // Save immediately (no debounce) to ensure it completes before navigation
+      await onUpdate({ customLinks: newLinks })
+      
+      toast({
+        title: 'Link removed',
+        description: 'Custom link has been removed',
+      })
 
-    setCurrentView('manager')
-    setEditingLink(null)
+      // Go back to overview after save completes
+      onBack()
+      setEditingLink(null)
+    } catch (error) {
+      // Revert on error
+      setCustomLinks(previousLinks)
+      toast({
+        variant: 'destructive',
+        title: 'Failed to delete link',
+        description: 'Could not delete the link. Please try again.',
+      })
+    }
   }
 
   const handleEdit = (link: CustomLink) => {
@@ -105,7 +166,8 @@ export default function CustomLinkManagerTab({ store, onUpdate, onBack }: Custom
   }
 
   const handleBackToManager = () => {
-    setCurrentView('manager')
+    // Go back to overview instead of showing manager
+    onBack()
     setEditingLink(null)
   }
 
@@ -122,6 +184,7 @@ export default function CustomLinkManagerTab({ store, onUpdate, onBack }: Custom
   if (currentView === 'edit' && editingLink) {
     return (
       <EditCustomLinkPage
+        key={editingLink.id}
         link={editingLink}
         onBack={handleBackToManager}
         onSave={handleUpdateLink}

@@ -11,7 +11,6 @@ export interface CustomLink {
   id: string
   title: string
   url: string
-  visible: boolean
 }
 
 export interface StoreUpdatePayload {

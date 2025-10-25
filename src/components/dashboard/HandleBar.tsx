@@ -15,7 +15,7 @@ type Props = {
 export default function HandleBar({ handle, className }: Props) {
   const publicPath = useMemo(() => {
     const h = (handle ?? "").trim();
-    return h ? `collabverse.io/${h}` : "collabverse.io/…";
+    return h ? `collabl.ink/${h}` : "collabl.ink/…";
   }, [handle]);
 
   const fullOpenUrl = useMemo(() => {

@@ -13,13 +13,21 @@ import CategoriesEditModal from '@/components/store/CategoriesEditModal'
 import SocialIconsDisplay from '@/components/store/SocialIconsDisplay'
 import { toast } from '@/components/ui/use-toast'
 import { CreatorStore } from '@prisma/client'
-import { Eye, Pencil, Plus } from 'lucide-react'
+import { Eye, Pencil, Plus, MoreVertical, MoveUp, MoveDown, Trash2 } from 'lucide-react'
 import { getPlatformIcon } from '@/components/icons/PlatformIcons'
 import { getPlatformById, Platform } from '@/lib/platformCategories'
 import LinkManagerModal from '@/components/store/LinkManagerModal'
 import AddLinkModal from '@/components/store/AddLinkModal'
 import SelfCollabModal from '@/components/store/SelfCollabModal'
 import { CustomLink } from '@/types'
+import { PlatformIcon } from '@/components/icons/PlatformIcons'
+import { detectPlatformFromUrl } from '@/lib/detectPlatform'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function MyStorePage() {
   const [store, setStore] = useState<CreatorStore | null>(null)
@@ -33,6 +41,11 @@ export default function MyStorePage() {
   const [showBioModal, setShowBioModal] = useState(false)
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
   const [showSelfCollabModal, setShowSelfCollabModal] = useState(false)
+  const [sidebarView, setSidebarView] = useState<'overview' | 'header' | 'platforms' | 'customLinks' | undefined>(undefined)
+  const [customLinkView, setCustomLinkView] = useState<'manager' | 'add' | 'edit' | undefined>(undefined)
+  const [editingCustomLinkId, setEditingCustomLinkId] = useState<string | undefined>(undefined)
+  const [platformView, setPlatformView] = useState<'add' | 'edit' | undefined>(undefined)
+  const [editingPlatformNetwork, setEditingPlatformNetwork] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     fetchStore()
@@ -73,12 +86,14 @@ export default function MyStorePage() {
 
       const updatedStore = await response.json()
       setStore(updatedStore)
+      return updatedStore // Return the updated store so callers know the update succeeded
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'Failed to save changes',
       })
+      throw error // Re-throw so callers can handle the error
     }
   }
 
@@ -105,11 +120,21 @@ export default function MyStorePage() {
   }
 
   const isEditing = mode === 'edit'
-  const handleToggle = () => setMode(mode === 'preview' ? 'edit' : 'preview')
+  const handleToggle = () => {
+    const newMode = mode === 'preview' ? 'edit' : 'preview'
+    setMode(newMode)
+    // Reset sidebar view when switching modes
+    if (newMode === 'preview') {
+      setSidebarView(undefined)
+      setCustomLinkView(undefined)
+      setEditingCustomLinkId(undefined)
+      setPlatformView(undefined)
+      setEditingPlatformNetwork(undefined)
+    }
+  }
   
   const social = (store.social as any[]) || []
   const customLinks = (store.customLinks as CustomLink[]) || []
-  const visibleCustomLinks = customLinks.filter(link => link.visible)
   
   const initials = store.displayName
     ?.split(' ')
@@ -126,6 +151,105 @@ export default function MyStorePage() {
 
   const handleQuickAddLink = () => {
     setShowLinkManagerModal(true)
+  }
+
+  const handleQuickAddCustomLink = () => {
+    // Ensure we're in edit mode
+    if (mode !== 'edit') {
+      setMode('edit')
+    }
+    // Set sidebar to custom links view with add form (always start fresh)
+    setSidebarView('customLinks')
+    setCustomLinkView('add')
+    setEditingCustomLinkId(undefined)
+  }
+
+  const handleOpenCustomLinksAdd = () => {
+    // Open Custom Links directly to Add form
+    setSidebarView('customLinks')
+    setCustomLinkView('add')
+    setEditingCustomLinkId(undefined)
+  }
+
+  const handleOpenPlatformsAdd = () => {
+    // Open Platforms directly to Add form
+    setSidebarView('platforms')
+    setPlatformView('add')
+    setEditingPlatformNetwork(undefined)
+  }
+
+  const handleEditPlatform = (network: string) => {
+    // Ensure we're in edit mode
+    if (mode !== 'edit') {
+      setMode('edit')
+    }
+    // Set sidebar to platforms view with edit form
+    setSidebarView('platforms')
+    setPlatformView('edit')
+    setEditingPlatformNetwork(network)
+  }
+
+  const handleEditCustomLink = (linkId: string) => {
+    // Ensure we're in edit mode
+    if (mode !== 'edit') {
+      setMode('edit')
+    }
+    // Set sidebar to custom links view with edit form
+    setSidebarView('customLinks')
+    setCustomLinkView('edit')
+    setEditingCustomLinkId(linkId)
+  }
+
+  const handleMoveCustomLinkUp = async (linkId: string) => {
+    if (!store) return
+    
+    const customLinks = (store.customLinks as CustomLink[]) || []
+    const currentIndex = customLinks.findIndex(l => l.id === linkId)
+    
+    if (currentIndex <= 0) return // Already at top or not found
+    
+    const newLinks = [...customLinks]
+    // Swap with previous item
+    ;[newLinks[currentIndex - 1], newLinks[currentIndex]] = [newLinks[currentIndex], newLinks[currentIndex - 1]]
+    
+    await handleUpdate({ customLinks: newLinks })
+  }
+
+  const handleMoveCustomLinkDown = async (linkId: string) => {
+    if (!store) return
+    
+    const customLinks = (store.customLinks as CustomLink[]) || []
+    const currentIndex = customLinks.findIndex(l => l.id === linkId)
+    
+    if (currentIndex < 0 || currentIndex >= customLinks.length - 1) return // Already at bottom or not found
+    
+    const newLinks = [...customLinks]
+    // Swap with next item
+    ;[newLinks[currentIndex], newLinks[currentIndex + 1]] = [newLinks[currentIndex + 1], newLinks[currentIndex]]
+    
+    await handleUpdate({ customLinks: newLinks })
+  }
+
+  const handleDeleteCustomLink = (linkId: string) => {
+    if (!store) return
+    
+    const customLinks = (store.customLinks as CustomLink[]) || []
+    const linkToDelete = customLinks.find(l => l.id === linkId)
+    
+    if (!linkToDelete) return
+    
+    // Simple confirm
+    if (!window.confirm(`Are you sure you want to delete "${linkToDelete.title}"?`)) {
+      return
+    }
+    
+    const newLinks = customLinks.filter(link => link.id !== linkId)
+    handleUpdate({ customLinks: newLinks })
+    
+    toast({
+      title: 'Link deleted',
+      description: `${linkToDelete.title} has been removed`,
+    })
   }
 
   const handleSelectPlatform = (platform: Platform) => {
@@ -369,7 +493,11 @@ export default function MyStorePage() {
                   {/* Social Links */}
                   {(social.length > 0 || isEditing) && (
                     <div className="flex justify-center items-center gap-3 mb-4 flex-wrap">
-                      <SocialIconsDisplay links={social} />
+                      <SocialIconsDisplay 
+                        links={social} 
+                        isEditMode={isEditing}
+                        onEditClick={handleEditPlatform}
+                      />
                       
                       {/* QUICK ADD LINK BUTTON - Edit mode only */}
                       {isEditing && (
@@ -396,27 +524,140 @@ export default function MyStorePage() {
                   )}
 
                   {/* Custom Links */}
-                  {visibleCustomLinks.length > 0 && (
+                  {(customLinks.length > 0 || isEditing) && (
                     <div className="w-full max-w-md space-y-3 mt-4">
-                      {visibleCustomLinks.map((link) => (
-                        <a
-                          key={link.id}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                      {/* Existing Links */}
+                      {customLinks.map((link, index) => {
+                        const platformIcon = detectPlatformFromUrl(link.url)
+                        const isFirst = index === 0
+                        const isLast = index === customLinks.length - 1
+                        
+                        // In edit mode, render as button to open editor
+                        if (isEditing) {
+                          return (
+                            <div
+                              key={link.id}
+                              className={`
+                                flex items-center gap-3 w-full px-6 py-4 rounded-xl font-medium
+                                transition-all duration-200
+                                ${store.theme === 'LIGHT'
+                                  ? 'bg-gray-100 text-gray-900'
+                                  : 'bg-gray-800 text-white'
+                                }
+                                relative group
+                              `}
+                            >
+                              <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                              <button
+                                onClick={() => handleEditCustomLink(link.id)}
+                                className="flex-1 text-center hover:opacity-80 transition-opacity"
+                              >
+                                {link.title}
+                              </button>
+                              
+                              {/* Three-dot menu */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className={`
+                                      h-8 w-8 flex items-center justify-center rounded-full
+                                      transition-all duration-200
+                                      ${store.theme === 'LIGHT'
+                                        ? 'hover:bg-gray-200 text-gray-600'
+                                        : 'hover:bg-gray-700 text-gray-400'
+                                      }
+                                    `}
+                                    aria-label="Link actions"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <MoreVertical className="h-5 w-5" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem
+                                    disabled={isFirst}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleMoveCustomLinkUp(link.id)
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <MoveUp className="h-4 w-4 mr-2" />
+                                    Move Up
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    disabled={isLast}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleMoveCustomLinkDown(link.id)
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <MoveDown className="h-4 w-4 mr-2" />
+                                    Move Down
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDeleteCustomLink(link.id)
+                                    }}
+                                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          )
+                        }
+                        
+                        // In preview mode, render as link
+                        return (
+                          <a
+                            key={link.id}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`
+                              flex items-center gap-3 w-full px-6 py-4 rounded-xl font-medium
+                              transition-all duration-200
+                              ${store.theme === 'LIGHT'
+                                ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                                : 'bg-gray-800 hover:bg-gray-700 text-white'
+                              }
+                              hover:scale-[1.02] hover:shadow-lg
+                            `}
+                          >
+                            <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                            <span className="flex-1 text-center">{link.title}</span>
+                            <div className="w-8" />
+                          </a>
+                        )
+                      })}
+
+                      {/* Add Link Card - Always visible in Edit mode */}
+                      {isEditing && (
+                        <button
+                          onClick={handleQuickAddCustomLink}
                           className={`
-                            block w-full px-6 py-4 rounded-xl font-medium text-center
+                            w-full px-6 py-8 rounded-xl border-2 border-dashed
                             transition-all duration-200
-                            ${store.theme === 'LIGHT'
-                              ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                              : 'bg-gray-800 hover:bg-gray-700 text-white'
-                            }
                             hover:scale-[1.02] hover:shadow-lg
+                            ${store.theme === 'LIGHT'
+                              ? 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-600'
+                              : 'border-gray-700 hover:border-gray-600 hover:bg-gray-900/50 text-gray-400'
+                            }
+                            flex flex-col items-center justify-center gap-2
                           `}
                         >
-                          {link.title}
-                        </a>
-                      ))}
+                          <Plus className="h-6 w-6" />
+                          <p className="font-medium">Add Link</p>
+                          <p className={`text-xs ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'}`}>
+                            Click here to add content
+                          </p>
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -456,7 +697,26 @@ export default function MyStorePage() {
               
               {/* SCROLLABLE CONTENT */}
               <div className="h-full overflow-y-auto">
-                <EditSidebar store={store} onUpdate={handleUpdate} />
+                <EditSidebar 
+                  store={store} 
+                  onUpdate={handleUpdate} 
+                  initialView={sidebarView}
+                  initialCustomLinkView={customLinkView}
+                  editingCustomLinkId={editingCustomLinkId}
+                  initialPlatformView={platformView}
+                  editingPlatformNetwork={editingPlatformNetwork}
+                  onOpenCustomLinksAdd={handleOpenCustomLinksAdd}
+                  onOpenPlatformsAdd={handleOpenPlatformsAdd}
+                  onViewChange={(view) => {
+                    setSidebarView(view === 'overview' ? undefined : view)
+                    if (view === 'overview') {
+                      setCustomLinkView(undefined)
+                      setEditingCustomLinkId(undefined)
+                      setPlatformView(undefined)
+                      setEditingPlatformNetwork(undefined)
+                    }
+                  }}
+                />
               </div>
             </div>
           </aside>

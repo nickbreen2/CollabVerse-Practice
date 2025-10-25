@@ -7,7 +7,7 @@ import { getSession } from "@/lib/auth";
 export const runtime = "nodejs";
 
 const RESERVED_HANDLES = [
-  'admin', 'api', 'login', 'signup', 'dashboard', 'collabverse', 
+  'admin', 'api', 'login', 'signup', 'dashboard', 'collablink', 
   'www', 'auth', 'signin', 'signout'
 ];
 

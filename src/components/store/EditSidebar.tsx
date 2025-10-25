@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreatorStore } from '@prisma/client'
 import { ChevronRight, ArrowLeft, User, Heart, Link } from 'lucide-react'
@@ -12,16 +12,48 @@ import DesignForm from '../DesignForm'
 interface EditSidebarProps {
   store: CreatorStore
   onUpdate: (data: Partial<CreatorStore>) => void
+  initialView?: SidebarView
+  initialCustomLinkView?: 'manager' | 'add' | 'edit'
+  editingCustomLinkId?: string
+  initialPlatformView?: 'add' | 'edit'
+  editingPlatformNetwork?: string
+  onViewChange?: (view: SidebarView) => void
+  onOpenCustomLinksAdd?: () => void
+  onOpenPlatformsAdd?: () => void
 }
 
 type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks'
 
-export default function EditSidebar({ store, onUpdate }: EditSidebarProps) {
-  const [currentView, setCurrentView] = useState<SidebarView>('overview')
+export default function EditSidebar({ store, onUpdate, initialView, initialCustomLinkView, editingCustomLinkId, initialPlatformView, editingPlatformNetwork, onViewChange, onOpenCustomLinksAdd, onOpenPlatformsAdd }: EditSidebarProps) {
+  const [currentView, setCurrentView] = useState<SidebarView>(initialView || 'overview')
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content')
+
+  // Update view when initialView changes
+  useEffect(() => {
+    if (initialView) {
+      setCurrentView(initialView)
+    }
+  }, [initialView])
 
   const handleBack = () => {
     setCurrentView('overview')
+    onViewChange?.('overview')
+  }
+
+  const handleOpenCustomLinks = () => {
+    if (onOpenCustomLinksAdd) {
+      onOpenCustomLinksAdd()
+    } else {
+      setCurrentView('customLinks')
+    }
+  }
+
+  const handleOpenPlatforms = () => {
+    if (onOpenPlatformsAdd) {
+      onOpenPlatformsAdd()
+    } else {
+      setCurrentView('platforms')
+    }
   }
 
   const renderContentView = () => {
@@ -29,9 +61,9 @@ export default function EditSidebar({ store, onUpdate }: EditSidebarProps) {
       case 'header':
         return <HeaderTab store={store} onUpdate={onUpdate} onBack={handleBack} />
       case 'platforms':
-        return <ManagePlatformsTab store={store} onUpdate={onUpdate} onBack={handleBack} />
+        return <ManagePlatformsTab store={store} onUpdate={onUpdate} onBack={handleBack} initialView={initialPlatformView} editingPlatformNetwork={editingPlatformNetwork} />
       case 'customLinks':
-        return <CustomLinkManagerTab store={store} onUpdate={onUpdate} onBack={handleBack} />
+        return <CustomLinkManagerTab store={store} onUpdate={onUpdate} onBack={handleBack} initialView={initialCustomLinkView} editingLinkId={editingCustomLinkId} />
       case 'overview':
       default:
         return (
@@ -57,7 +89,7 @@ export default function EditSidebar({ store, onUpdate }: EditSidebarProps) {
 
             {/* Manage Platforms Section */}
             <button
-              onClick={() => setCurrentView('platforms')}
+              onClick={handleOpenPlatforms}
               className="w-full flex items-center justify-between p-2.5 rounded-lg border bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
             >
               <div className="flex items-center gap-3 flex-1">
@@ -76,7 +108,7 @@ export default function EditSidebar({ store, onUpdate }: EditSidebarProps) {
 
             {/* Custom Link Section */}
             <button
-              onClick={() => setCurrentView('customLinks')}
+              onClick={handleOpenCustomLinks}
               className="w-full flex items-center justify-between p-2.5 rounded-lg border bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
             >
               <div className="flex items-center gap-3">

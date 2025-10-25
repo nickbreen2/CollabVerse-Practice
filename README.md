@@ -1,11 +1,11 @@
-# CollabVerse MVP - Auth + Dashboard
+# CollabLink MVP - Auth + Dashboard
 
 A Next.js application for creators to build their collaboration profiles with authentication, dashboard, and store customization features.
 
 ## Features
 
 ### ✅ Authentication
-- **Sign Up** with email, password, and unique handle (with locked prefix `collabverse.io/`)
+- **Sign Up** with email, password, and unique handle (with locked prefix `collabl.ink/`)
 - **Sign In** with email and password
 - Secure session management using iron-session
 - Reserved handle validation
@@ -170,7 +170,7 @@ src/
 - Lowercase only
 - Letters, numbers, and hyphens
 - Cannot start or end with hyphen
-- Reserved handles: admin, api, login, signup, dashboard, collabverse, www, auth, signin, signout
+- Reserved handles: admin, api, login, signup, dashboard, collablink, www, auth, signin, signout
 
 ### Images
 - Formats: JPG, PNG, WebP
@@ -186,7 +186,7 @@ src/
 ## Key Features Implementation
 
 ### Locked-Prefix Handle Input
-The handle input shows a non-editable prefix `collabverse.io/` followed by the user's custom handle.
+The handle input shows a non-editable prefix `collabl.ink/` followed by the user's custom handle.
 
 ### Preview/Edit Toggle
 A button at the top-left of the store card switches between:

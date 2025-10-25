@@ -13,7 +13,7 @@ export default function HandleInput({ value, onChange, error }: HandleInputProps
     <div>
       <div className="flex items-center rounded-md border bg-background overflow-hidden">
         <span className="px-3 py-2 text-sm text-muted-foreground select-none whitespace-nowrap bg-muted">
-          collabverse.io/
+          collabl.ink/
         </span>
         <Input
           className="border-0 focus-visible:ring-0 shadow-none"

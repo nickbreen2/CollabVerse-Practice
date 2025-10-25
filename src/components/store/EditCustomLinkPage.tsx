@@ -5,7 +5,6 @@ import { ArrowLeft, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { CustomLink } from '@/types'
 import {
   Dialog,
@@ -26,7 +25,6 @@ interface EditCustomLinkPageProps {
 export default function EditCustomLinkPage({ link, onBack, onSave, onDelete }: EditCustomLinkPageProps) {
   const [title, setTitle] = useState(link.title)
   const [url, setUrl] = useState(link.url)
-  const [visible, setVisible] = useState(link.visible)
   const [errors, setErrors] = useState({ title: '', url: '' })
   const [isSaving, setIsSaving] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -101,8 +99,7 @@ export default function EditCustomLinkPage({ link, onBack, onSave, onDelete }: E
       onSave({
         ...link,
         title: title.trim(),
-        url: normalizedUrl,
-        visible
+        url: normalizedUrl
       })
       setIsSaving(false)
     }
@@ -176,21 +173,6 @@ export default function EditCustomLinkPage({ link, onBack, onSave, onDelete }: E
             <p className="text-xs text-muted-foreground">
               We'll automatically add https:// if needed
             </p>
-          </div>
-
-          {/* Visibility Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-lg border bg-white dark:bg-gray-950">
-            <div className="space-y-0.5">
-              <Label htmlFor="visible">Show on public store</Label>
-              <p className="text-xs text-muted-foreground">
-                Control whether this link appears on your public profile
-              </p>
-            </div>
-            <Switch
-              id="visible"
-              checked={visible}
-              onCheckedChange={setVisible}
-            />
           </div>
 
           {/* Action Buttons */}

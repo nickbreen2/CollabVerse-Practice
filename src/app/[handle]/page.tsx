@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import ConnectCTA from '@/components/store/ConnectCTA'
 import CollabRequestModal from '@/components/store/CollabRequestModal'
 import { CustomLink } from '@/types'
+import { PlatformIcon } from '@/components/icons/PlatformIcons'
+import { detectPlatformFromUrl } from '@/lib/detectPlatform'
 import SocialIconsDisplay from '@/components/store/SocialIconsDisplay'
 import Banner from '@/components/Banner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -82,7 +84,6 @@ export default function PublicStorePage() {
 
   const social = (store.social as any[]) || []
   const customLinks = (store.customLinks as CustomLink[]) || []
-  const visibleCustomLinks = customLinks.filter(link => link.visible)
   
   const initials = store.displayName
     ?.split(' ')
@@ -175,27 +176,32 @@ export default function PublicStorePage() {
               )}
 
               {/* Custom Links */}
-              {visibleCustomLinks.length > 0 && (
+              {customLinks.length > 0 && (
                 <div className="w-full max-w-md space-y-3 mt-4">
-                  {visibleCustomLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`
-                        block w-full px-6 py-4 rounded-xl font-medium text-center
-                        transition-all duration-200
-                        ${store.theme === 'LIGHT'
-                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white'
-                        }
-                        hover:scale-[1.02] hover:shadow-lg
-                      `}
-                    >
-                      {link.title}
-                    </a>
-                  ))}
+                  {customLinks.map((link) => {
+                    const platformIcon = detectPlatformFromUrl(link.url)
+                    return (
+                      <a
+                        key={link.id}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`
+                          flex items-center gap-3 w-full px-6 py-4 rounded-xl font-medium
+                          transition-all duration-200
+                          ${store.theme === 'LIGHT'
+                            ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                            : 'bg-gray-800 hover:bg-gray-700 text-white'
+                          }
+                          hover:scale-[1.02] hover:shadow-lg
+                        `}
+                      >
+                        <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                        <span className="flex-1 text-center">{link.title}</span>
+                        <div className="w-8" />
+                      </a>
+                    )
+                  })}
                 </div>
               )}
             </div>
