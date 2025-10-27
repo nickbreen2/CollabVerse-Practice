@@ -11,6 +11,9 @@ export interface CustomLink {
   id: string
   title: string
   url: string
+  thumbnailUrl?: string
+  thumbnailSize?: 'big' | 'small' | 'none'
+  customIconUrl?: string
 }
 
 export interface StoreUpdatePayload {

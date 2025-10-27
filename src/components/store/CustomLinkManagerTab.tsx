@@ -50,11 +50,14 @@ export default function CustomLinkManagerTab({ store, onUpdate, onBack, initialV
     onUpdate(data)
   }, 400)
 
-  const handleAddLink = async (title: string, url: string) => {
+  const handleAddLink = async (title: string, url: string, thumbnailUrl?: string, thumbnailSize?: 'big' | 'small' | 'none', customIconUrl?: string) => {
     const newLink: CustomLink = {
       id: crypto.randomUUID(),
       title,
-      url
+      url,
+      thumbnailUrl,
+      thumbnailSize,
+      customIconUrl
     }
 
     const newLinks = [...customLinks, newLink]

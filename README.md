@@ -41,6 +41,7 @@ A Next.js application for creators to build their collaboration profiles with au
 - **Framework**: Next.js 14 (App Router)
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: iron-session
+- **File Storage**: AWS S3
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui (Radix UI)
 - **Validation**: Zod
@@ -67,11 +68,18 @@ A Next.js application for creators to build their collaboration profiles with au
    ```env
    DATABASE_URL="postgresql://user:password@localhost:5432/collabverse?schema=public"
    SESSION_SECRET="your-secret-key-here-at-least-32-characters-long"
+   
+   # AWS S3 Configuration (for image uploads)
+   AWS_REGION="us-east-1"
+   AWS_ACCESS_KEY_ID="your-access-key-id"
+   AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+   AWS_S3_BUCKET_NAME="your-bucket-name"
    ```
 
    **Important**: 
    - Replace the `DATABASE_URL` with your actual PostgreSQL connection string
    - Generate a secure random string for `SESSION_SECRET` (at least 32 characters)
+   - See [AWS S3 Setup Instructions](#aws-s3-setup) below for configuring S3
 
 3. **Initialize the database**:
    ```bash
@@ -161,7 +169,7 @@ src/
 - `PATCH /api/store` - Update store details
 
 ### Upload
-- `POST /api/upload` - Upload images (placeholder - returns mock URL)
+- `POST /api/upload` - Upload images to AWS S3
 
 ## Validation Rules
 
@@ -212,12 +220,91 @@ Form changes are automatically saved after 400ms of inactivity with visual feedb
 
 ## Development Notes
 
+### AWS S3 Setup
+
+This application uses AWS S3 for storing profile images and banner images. Follow these steps to set up S3:
+
+#### 1. Create an AWS Account
+If you don't have one, sign up at https://aws.amazon.com.
+
+#### 2. Create an S3 Bucket
+1. Go to the S3 service in AWS Console
+2. Click "Create bucket"
+3. Choose a unique bucket name (e.g., `collablink-uploads`)
+4. Select your preferred region (e.g., `us-east-1`)
+5. **Block public access**: Enable this for security
+6. Leave versioning disabled (unless you need it)
+7. Click "Create bucket"
+
+#### 3. Create IAM User and Access Keys
+1. Go to IAM service in AWS Console
+2. Click "Users" → "Create user"
+3. Enter a username (e.g., `collablink-s3-user`)
+4. Click "Next"
+5. Under "Set permissions", select "Attach policies directly"
+6. Search for and select `AmazonS3FullAccess` (or create a custom policy with only the needed permissions)
+7. Click "Next" and "Create user"
+8. Click on the newly created user
+9. Go to the "Security credentials" tab
+10. Click "Create access key"
+11. Choose "Application running outside AWS"
+12. Click "Next" and "Create access key"
+13. **Important**: Copy both the Access Key ID and Secret Access Key immediately (you won't be able to see the secret again)
+
+#### 4. Configure Bucket CORS (for client-side access)
+1. Go to your S3 bucket
+2. Click on the "Permissions" tab
+3. Scroll down to "Cross-origin resource sharing (CORS)"
+4. Click "Edit" and add this configuration:
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+    "AllowedOrigins": ["http://localhost:3000", "https://your-production-domain.com"],
+    "ExposeHeaders": ["ETag"]
+  }
+]
+```
+
+#### 5. Configure Environment Variables
+Add these to your `.env` file:
+```env
+AWS_REGION="us-east-1"  # Your bucket region
+AWS_ACCESS_KEY_ID="your-access-key-id"
+AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+AWS_S3_BUCKET_NAME="your-bucket-name"
+```
+
+#### 6. Bucket Policy (Optional, if you need public URLs)
+If you want uploaded images to be publicly accessible, add this bucket policy (replace `your-bucket-name`):
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::your-bucket-name/*"
+    }
+  ]
+}
+```
+
+#### Important Notes
+- **Security**: Never commit your AWS credentials to version control
+- **Cost**: S3 has a free tier for the first 12 months (5GB storage, 20,000 GET requests)
+- **File Organization**: Uploads are organized by user ID (`userId/filename.ext`)
+- **File Limits**: Max 2MB per file, only JPG/PNG/WebP allowed
+
 ### Image Upload
-The current implementation includes a placeholder upload endpoint that returns mock URLs. In production, integrate with a cloud storage service:
-- AWS S3
-- Cloudinary
-- Vercel Blob
-- UploadThing
+The application uses AWS S3 for storing profile and banner images. The upload API supports:
+- File size limit: 2MB
+- Allowed formats: JPG, PNG, WebP
+- Automatic file organization by user ID
+- Secure uploads with authentication
 
 ### Future Enhancements (Out of Scope for MVP)
 - Public store pages at `/:handle`
@@ -239,8 +326,10 @@ The current implementation includes a placeholder upload endpoint that returns m
 - Clear browser cookies and try again
 
 ### Image Upload Not Working
-- The upload endpoint is a placeholder
-- Integrate a real file storage solution for production
+- Verify AWS credentials in `.env` file are correct
+- Check that the S3 bucket exists and is accessible
+- Ensure CORS is configured on your S3 bucket
+- Verify file size is under 2MB and format is JPG/PNG/WebP
 
 ## License
 

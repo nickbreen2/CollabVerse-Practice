@@ -76,6 +76,9 @@ export const StoreUpdateSchema = z.object({
         id: z.string(),
         title: z.string().max(100),
         url: z.string().transform(normalizeUrl).pipe(z.string().url()),
+        thumbnailUrl: z.string().url().optional(),
+        thumbnailSize: z.enum(['big', 'small', 'none']).optional(),
+        customIconUrl: z.string().url().optional(),
       })
     )
     .optional(),

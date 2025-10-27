@@ -529,11 +529,120 @@ export default function MyStorePage() {
                       {/* Existing Links */}
                       {customLinks.map((link, index) => {
                         const platformIcon = detectPlatformFromUrl(link.url)
+                        const displayIcon = link.customIconUrl || platformIcon
                         const isFirst = index === 0
                         const isLast = index === customLinks.length - 1
+                        const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none' && link.thumbnailUrl
                         
                         // In edit mode, render as button to open editor
                         if (isEditing) {
+                          // Featured link in edit mode
+                          if (isFeatured) {
+                            const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                            return (
+                              <div
+                                key={link.id}
+                                className={`
+                                  relative ${height} rounded-xl overflow-hidden
+                                  transition-all duration-200 group
+                                `}
+                              >
+                                {/* Background Image */}
+                                <div className="absolute inset-0">
+                                  <img
+                                    src={link.thumbnailUrl}
+                                    alt={link.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  {/* Dark overlay */}
+                                  <div className="absolute inset-0 bg-black/20" />
+                                </div>
+                                
+                                {/* Icon at top-left */}
+                                <div className="absolute top-4 left-4 z-10">
+                                  {link.customIconUrl ? (
+                                    <img
+                                      src={link.customIconUrl}
+                                      alt="Link icon"
+                                      className="h-8 w-8 rounded-lg object-cover shadow-lg"
+                                    />
+                                  ) : (
+                                    <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" />
+                                  )}
+                                </div>
+                                
+                                {/* Title at bottom-center */}
+                                <button
+                                  onClick={() => handleEditCustomLink(link.id)}
+                                  className="absolute bottom-0 left-0 right-0 p-4 hover:opacity-80 transition-opacity"
+                                >
+                                  <div className="text-center">
+                                    <span className="text-white font-semibold text-lg drop-shadow-lg">
+                                      {link.title}
+                                    </span>
+                                  </div>
+                                </button>
+                                
+                                {/* Three-dot menu */}
+                                <div className="absolute top-2 right-2 z-20">
+                                  <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className={`
+                                      h-8 w-8 flex items-center justify-center rounded-full
+                                      transition-all duration-200
+                                      ${store.theme === 'LIGHT'
+                                        ? 'hover:bg-gray-200 text-gray-600'
+                                        : 'hover:bg-gray-700 text-gray-400'
+                                      }
+                                    `}
+                                    aria-label="Link actions"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <MoreVertical className="h-5 w-5" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem
+                                    disabled={isFirst}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleMoveCustomLinkUp(link.id)
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <MoveUp className="h-4 w-4 mr-2" />
+                                    Move Up
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    disabled={isLast}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleMoveCustomLinkDown(link.id)
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    <MoveDown className="h-4 w-4 mr-2" />
+                                    Move Down
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDeleteCustomLink(link.id)
+                                    }}
+                                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                              </div>
+                            )
+                          }
+                          
+                          // Regular link in edit mode
                           return (
                             <div
                               key={link.id}
@@ -547,7 +656,15 @@ export default function MyStorePage() {
                                 relative group
                               `}
                             >
-                              <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                              {link.customIconUrl ? (
+                                <img
+                                  src={link.customIconUrl}
+                                  alt="Link icon"
+                                  className="h-8 w-8 flex-shrink-0 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                              )}
                               <button
                                 onClick={() => handleEditCustomLink(link.id)}
                                 className="flex-1 text-center hover:opacity-80 transition-opacity"
@@ -612,7 +729,58 @@ export default function MyStorePage() {
                           )
                         }
                         
-                        // In preview mode, render as link
+                        // Preview mode - render as clickable link
+                        // Featured link in preview mode
+                        if (isFeatured) {
+                          const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                          return (
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`
+                                relative block w-full ${height} rounded-xl overflow-hidden
+                                transition-all duration-200 hover:scale-[1.02] hover:shadow-lg
+                              `}
+                            >
+                              {/* Background Image */}
+                              <div className="absolute inset-0">
+                                <img
+                                  src={link.thumbnailUrl}
+                                  alt={link.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                {/* Dark overlay */}
+                                <div className="absolute inset-0 bg-black/20" />
+                              </div>
+                              
+                              {/* Icon at top-left */}
+                              <div className="absolute top-4 left-4 z-10">
+                                {link.customIconUrl ? (
+                                  <img
+                                    src={link.customIconUrl}
+                                    alt="Link icon"
+                                    className="h-8 w-8 rounded-lg object-cover shadow-lg"
+                                  />
+                                ) : (
+                                  <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" />
+                                )}
+                              </div>
+                              
+                              {/* Title at bottom-center */}
+                              <div className="absolute bottom-0 left-0 right-0 p-4">
+                                <div className="text-center">
+                                  <span className="text-white font-semibold text-lg drop-shadow-lg">
+                                    {link.title}
+                                  </span>
+                                </div>
+                              </div>
+                            </a>
+                          )
+                        }
+                        
+                        // Regular link in preview mode
                         return (
                           <a
                             key={link.id}
@@ -629,7 +797,15 @@ export default function MyStorePage() {
                               hover:scale-[1.02] hover:shadow-lg
                             `}
                           >
-                            <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                            {link.customIconUrl ? (
+                              <img
+                                src={link.customIconUrl}
+                                alt="Link icon"
+                                className="h-8 w-8 flex-shrink-0 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                            )}
                             <span className="flex-1 text-center">{link.title}</span>
                             <div className="w-8" />
                           </a>

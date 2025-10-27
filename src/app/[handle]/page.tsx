@@ -180,6 +180,60 @@ export default function PublicStorePage() {
                 <div className="w-full max-w-md space-y-3 mt-4">
                   {customLinks.map((link) => {
                     const platformIcon = detectPlatformFromUrl(link.url)
+                    const displayIcon = link.customIconUrl || platformIcon
+                    const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none' && link.thumbnailUrl
+                    
+                    // Featured link with thumbnail
+                    if (isFeatured) {
+                      const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                      return (
+                        <a
+                          key={link.id}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`
+                            relative block w-full ${height} rounded-xl overflow-hidden
+                            transition-all duration-200 hover:scale-[1.02] hover:shadow-lg
+                          `}
+                        >
+                          {/* Background Image */}
+                          <div className="absolute inset-0">
+                            <img
+                              src={link.thumbnailUrl}
+                              alt={link.title}
+                              className="w-full h-full object-cover"
+                            />
+                            {/* Dark overlay for better text readability */}
+                            <div className="absolute inset-0 bg-black/20" />
+                          </div>
+                          
+                          {/* Icon at top-left */}
+                          <div className="absolute top-4 left-4 z-10">
+                            {link.customIconUrl ? (
+                              <img
+                                src={link.customIconUrl}
+                                alt="Link icon"
+                                className="h-8 w-8 rounded-lg object-cover shadow-lg"
+                              />
+                            ) : (
+                              <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" />
+                            )}
+                          </div>
+                          
+                          {/* Title at bottom-center */}
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <div className="text-center">
+                              <span className="text-white font-semibold text-lg drop-shadow-lg">
+                                {link.title}
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                      )
+                    }
+                    
+                    // Regular link row
                     return (
                       <a
                         key={link.id}
@@ -196,7 +250,15 @@ export default function PublicStorePage() {
                           hover:scale-[1.02] hover:shadow-lg
                         `}
                       >
-                        <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                        {link.customIconUrl ? (
+                          <img
+                            src={link.customIconUrl}
+                            alt="Link icon"
+                            className="h-8 w-8 flex-shrink-0 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" />
+                        )}
                         <span className="flex-1 text-center">{link.title}</span>
                         <div className="w-8" />
                       </a>
