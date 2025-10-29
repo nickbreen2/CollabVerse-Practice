@@ -1,14 +1,12 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ArrowLeft, Upload, Check } from 'lucide-react'
+import { X as CloseIcon, Upload, Check, X } from 'lucide-react'
 import { CreatorStore } from '@prisma/client'
-import { useDebounce } from '@/hooks/useDebounce'
 import { toast } from '@/components/ui/use-toast'
 
 interface HeaderTabProps {
@@ -17,43 +15,113 @@ interface HeaderTabProps {
   onBack: () => void
 }
 
-const CONTENT_CATEGORIES = [
-  'Fashion',
-  'Beauty',
-  'Lifestyle',
-  'Fitness',
-  'Gaming',
-  'Technology',
-  'Food',
-  'Travel',
-  'Music',
-  'Dance',
-  'Comedy',
-  'Education',
-]
 
 export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
   const [formData, setFormData] = useState({
     displayName: store.displayName || '',
     location: store.location || '',
-    bio: store.bio || '',
   })
-  const [categories, setCategories] = useState<string[]>(store.categories || [])
+  const [handle, setHandle] = useState(store.handle || '')
+  const [handleError, setHandleError] = useState('')
+  const [handleAvailable, setHandleAvailable] = useState<boolean | null>(null)
+  const [isCheckingHandle, setIsCheckingHandle] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Debounced save
-  const debouncedSave = useDebounce((data: any) => {
-    onUpdate(data)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }, 400)
+  // Check if there are unsaved changes
+  const hasChanges = 
+    formData.displayName !== (store.displayName || '') ||
+    formData.location !== (store.location || '') ||
+    handle !== store.handle
 
   const handleFieldChange = (field: string, value: any) => {
     const newData = { ...formData, [field]: value }
     setFormData(newData)
-    debouncedSave(newData)
+  }
+
+  // Real-time handle validation with debounce
+  useEffect(() => {
+    const checkHandleAvailability = async () => {
+      const value = handle.trim()
+      
+      // Reset states
+      setHandleError('')
+      setHandleAvailable(null)
+
+      if (!value) {
+        setHandleError('Handle is required')
+        return
+      }
+
+      // Format validation
+      const handleRegex = /^[a-z0-9_]{3,20}$/
+      if (!handleRegex.test(value)) {
+        if (value.length < 3) {
+          setHandleError('Handle must be at least 3 characters')
+        } else if (value.length > 20) {
+          setHandleError('Handle must be 20 characters or less')
+        } else {
+          setHandleError('Only lowercase letters, numbers, and underscores allowed')
+        }
+        return
+      }
+
+      // Skip uniqueness check if handle hasn't changed
+      if (value === store.handle) {
+        setHandleAvailable(true)
+        return
+      }
+
+      // Check uniqueness with debounce
+      setIsCheckingHandle(true)
+      try {
+        const response = await fetch(`/api/settings/check-username?username=${value}`)
+        const data = await response.json()
+
+        if (!data.available) {
+          setHandleError('Handle already taken')
+          setHandleAvailable(false)
+        } else {
+          setHandleAvailable(true)
+        }
+      } catch (error) {
+        setHandleError('Failed to check handle availability')
+        setHandleAvailable(null)
+      } finally {
+        setIsCheckingHandle(false)
+      }
+    }
+
+    // Debounce the check
+    const timer = setTimeout(() => {
+      if (handle) {
+        checkHandleAvailability()
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [handle, store.handle])
+
+  const checkHandle = async (value: string) => {
+    if (!value) {
+      setHandleError('Handle is required')
+      return false
+    }
+
+    // Format validation
+    const handleRegex = /^[a-z0-9_]{3,20}$/
+    if (!handleRegex.test(value)) {
+      return false
+    }
+
+    // Skip uniqueness check if handle hasn't changed
+    if (value === store.handle) {
+      return true
+    }
+
+    // Use the already checked availability
+    return handleAvailable === true
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,24 +165,49 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
     }
   }
 
-  const toggleCategory = (category: string) => {
-    let newCategories: string[]
-    if (categories.includes(category)) {
-      newCategories = categories.filter((c) => c !== category)
-    } else {
-      if (categories.length >= 5) {
+  const handleHandleChange = (value: string) => {
+    const sanitized = value.toLowerCase().replace(/[^a-z0-9_]/g, '')
+    setHandle(sanitized)
+  }
+
+  const handleSave = async () => {
+    // Validate handle if it changed
+    if (handle !== store.handle) {
+      const isValid = await checkHandle(handle)
+      if (!isValid) {
         toast({
           variant: 'destructive',
-          title: 'Maximum reached',
-          description: 'You can select up to 5 categories',
+          title: 'Invalid Handle',
+          description: handleError || 'Please fix the handle before saving',
         })
         return
       }
-      newCategories = [...categories, category]
     }
-    setCategories(newCategories)
-    debouncedSave({ categories: newCategories })
+
+    setIsSaving(true)
+    try {
+      // Save all changes
+      await onUpdate({
+        displayName: formData.displayName,
+        location: formData.location,
+        handle: handle,
+      })
+      
+      toast({
+        title: 'Success',
+        description: 'Personal info updated successfully',
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save changes',
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
+
 
   const initials = formData.displayName
     ?.split(' ')
@@ -124,29 +217,24 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header with Back Button */}
+      {/* Header with Close Button */}
       <div className="flex-shrink-0 bg-white dark:bg-gray-950 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-3">
-          <button
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-semibold">Personal Info</h3>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onBack}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="h-8 px-3 text-red-600 hover:bg-[#fff2f1] hover:text-red-600"
           >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h3 className="text-base font-semibold">Header</h3>
+            Close
+          </Button>
         </div>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <div className="space-y-6">
-          {/* Saved indicator */}
-          {saved && (
-            <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-              <Check className="h-4 w-4" />
-              <span>Saved</span>
-            </div>
-          )}
 
           {/* Profile Image */}
           <div className="space-y-2">
@@ -210,50 +298,59 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
             </p>
           </div>
 
-          {/* Bio */}
+          {/* Handle */}
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              value={formData.bio}
-              onChange={(e) => handleFieldChange('bio', e.target.value)}
-              placeholder="Tell us about yourself..."
-              maxLength={280}
-              rows={4}
-            />
-            <p className="text-xs text-muted-foreground">
-              {formData.bio.length}/280
-            </p>
+            <Label htmlFor="handle">Handle (@username)</Label>
+            <div className="flex items-center rounded-md border bg-background overflow-hidden">
+              <span className="px-3 py-2 text-sm text-muted-foreground select-none whitespace-nowrap bg-muted">
+                collabl.ink/
+              </span>
+              <Input
+                id="handle"
+                className="border-0 focus-visible:ring-0 shadow-none"
+                value={handle}
+                onChange={(e) => handleHandleChange(e.target.value)}
+                placeholder="username"
+                maxLength={20}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isCheckingHandle && (
+                  <p className="text-xs text-muted-foreground">Checking availability...</p>
+                )}
+                {!isCheckingHandle && handleError && (
+                  <div className="flex items-center gap-1 text-xs text-destructive">
+                    <X className="h-3 w-3" />
+                    <span>{handleError}</span>
+                  </div>
+                )}
+                {!isCheckingHandle && !handleError && handleAvailable && handle !== store.handle && (
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                    <Check className="h-3 w-3" />
+                    <span>Handle available</span>
+                  </div>
+                )}
+                {!isCheckingHandle && !handleError && handle === store.handle && (
+                  <p className="text-xs text-muted-foreground">Current handle</p>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {handle.length}/20
+              </p>
+            </div>
           </div>
 
-          {/* Categories */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Content Categories</Label>
-              <span className="text-xs text-muted-foreground">
-                {categories.length}/5
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {CONTENT_CATEGORIES.map((category) => {
-                const isSelected = categories.includes(category)
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+          {/* Save Button at Bottom - Shows when there are changes */}
+          {hasChanges && (
+            <Button 
+              onClick={handleSave}
+              disabled={isSaving || isCheckingHandle || !!handleError}
+              className="w-full mt-6"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          )}
         </div>
       </div>
     </div>

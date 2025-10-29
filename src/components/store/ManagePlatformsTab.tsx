@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, MoveLeft, MoveRight, Trash2 } from 'lucide-react'
+import { MoveLeft, MoveRight, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -223,16 +223,18 @@ export default function ManagePlatformsTab({ store, onUpdate, onBack, initialVie
 
     return (
       <div className="h-full flex flex-col">
-        {/* Header */}
+        {/* Header with Close Button */}
         <div className="flex-shrink-0 bg-white dark:bg-gray-950 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBack}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
+          <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold">Edit {platform?.name || 'Platform'}</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="h-8 px-3 text-red-600 hover:bg-[#fff2f1] hover:text-red-600"
+            >
+              Close
+            </Button>
           </div>
         </div>
 

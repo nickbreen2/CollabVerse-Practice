@@ -36,7 +36,6 @@ export default async function CollaborationRequestPage({ params }: PageProps) {
       creatorAvatar={store.avatarUrl || undefined}
       creatorName={store.displayName || undefined}
       theme={store.theme}
-      isSelfView={false}
     />
   )
 }

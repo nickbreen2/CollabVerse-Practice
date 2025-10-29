@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreatorStore } from '@prisma/client'
-import { ChevronRight, ArrowLeft, User, Heart, Link } from 'lucide-react'
+import { ChevronRight, ArrowLeft, User, Heart, Link, MessageCircle } from 'lucide-react'
 import HeaderTab from './HeaderTab'
 import ManagePlatformsTab from './ManagePlatformsTab'
 import CustomLinkManagerTab from './CustomLinkManagerTab'
+import BioTab from './BioTab'
 import DesignForm from '../DesignForm'
 
 interface EditSidebarProps {
@@ -22,7 +23,7 @@ interface EditSidebarProps {
   onOpenPlatformsAdd?: () => void
 }
 
-type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks'
+type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks' | 'bio'
 
 export default function EditSidebar({ store, onUpdate, initialView, initialCustomLinkView, editingCustomLinkId, initialPlatformView, editingPlatformNetwork, onViewChange, onOpenCustomLinksAdd, onOpenPlatformsAdd }: EditSidebarProps) {
   const [currentView, setCurrentView] = useState<SidebarView>(initialView || 'overview')
@@ -62,6 +63,8 @@ export default function EditSidebar({ store, onUpdate, initialView, initialCusto
         return <HeaderTab store={store} onUpdate={onUpdate} onBack={handleBack} />
       case 'platforms':
         return <ManagePlatformsTab store={store} onUpdate={onUpdate} onBack={handleBack} initialView={initialPlatformView} editingPlatformNetwork={editingPlatformNetwork} />
+      case 'bio':
+        return <BioTab store={store} onUpdate={onUpdate} onBack={handleBack} />
       case 'customLinks':
         return <CustomLinkManagerTab store={store} onUpdate={onUpdate} onBack={handleBack} initialView={initialCustomLinkView} editingLinkId={editingCustomLinkId} />
       case 'overview':
@@ -82,7 +85,7 @@ export default function EditSidebar({ store, onUpdate, initialView, initialCusto
                 <div className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                   <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </div>
-                <span className="font-medium text-sm">Header</span>
+                <span className="font-medium text-sm">Personal Info</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </button>
@@ -97,6 +100,20 @@ export default function EditSidebar({ store, onUpdate, initialView, initialCusto
                   <Heart className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <span className="font-medium text-sm">Manage Platforms</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </button>
+
+            {/* Bio Section */}
+            <button
+              onClick={() => setCurrentView('bio')}
+              className="w-full flex items-center justify-between p-2.5 rounded-lg border bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <MessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                </div>
+                <span className="font-medium text-sm">Bio</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </button>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
-import { Loader2, Mail, Key } from "lucide-react";
+import { Loader2, Mail, Key, Check, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,7 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
   const [location, setLocation] = React.useState(user.store?.location || "");
   const [isCheckingUsername, setIsCheckingUsername] = React.useState(false);
   const [usernameError, setUsernameError] = React.useState("");
+  const [usernameAvailable, setUsernameAvailable] = React.useState<boolean | null>(null);
   const [birthDateError, setBirthDateError] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
   const [isDirty, setIsDirty] = React.useState(false);
@@ -70,6 +71,10 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
   // Username validation and uniqueness check
   const checkUsername = React.useCallback(
     async (value: string) => {
+      // Reset states
+      setUsernameError("");
+      setUsernameAvailable(null);
+
       if (!value) {
         setUsernameError("Username is required");
         return false;
@@ -78,15 +83,19 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
       // Format validation
       const usernameRegex = /^[a-z0-9_]{3,20}$/;
       if (!usernameRegex.test(value)) {
-        setUsernameError(
-          "Username must be 3-20 characters, lowercase letters, numbers, or underscores only"
-        );
+        if (value.length < 3) {
+          setUsernameError("Username must be at least 3 characters");
+        } else if (value.length > 20) {
+          setUsernameError("Username must be 20 characters or less");
+        } else {
+          setUsernameError("Only lowercase letters, numbers, and underscores allowed");
+        }
         return false;
       }
 
       // Skip uniqueness check if username hasn't changed
       if (value === user.store?.handle) {
-        setUsernameError("");
+        setUsernameAvailable(true);
         return true;
       }
 
@@ -98,13 +107,15 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
 
         if (!data.available) {
           setUsernameError("Username already taken");
+          setUsernameAvailable(false);
           return false;
         }
 
-        setUsernameError("");
+        setUsernameAvailable(true);
         return true;
       } catch (error) {
         setUsernameError("Failed to check username availability");
+        setUsernameAvailable(null);
         return false;
       } finally {
         setIsCheckingUsername(false);
@@ -313,12 +324,7 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">
-              Username
-              {isCheckingUsername && (
-                <span className="ml-2 text-xs text-muted-foreground">(checking...)</span>
-              )}
-            </Label>
+            <Label htmlFor="username">Username</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 @
@@ -331,7 +337,31 @@ export default function PersonalInfoSection({ user }: PersonalInfoSectionProps) 
                 className="pl-7"
               />
             </div>
-            {usernameError && <p className="text-sm text-destructive">{usernameError}</p>}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isCheckingUsername && (
+                  <p className="text-xs text-muted-foreground">Checking availability...</p>
+                )}
+                {!isCheckingUsername && usernameError && (
+                  <div className="flex items-center gap-1 text-xs text-destructive">
+                    <X className="h-3 w-3" />
+                    <span>{usernameError}</span>
+                  </div>
+                )}
+                {!isCheckingUsername && !usernameError && usernameAvailable && username !== user.store?.handle && (
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                    <Check className="h-3 w-3" />
+                    <span>Username available</span>
+                  </div>
+                )}
+                {!isCheckingUsername && !usernameError && username === user.store?.handle && (
+                  <p className="text-xs text-muted-foreground">Current username</p>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {username.length}/20
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">

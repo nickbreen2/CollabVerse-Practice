@@ -133,12 +133,27 @@ export default function PublicStorePage() {
                 <h2 className="text-3xl font-bold">
                   {store.displayName || 'Creator'}
                 </h2>
+                
+                {/* Username */}
+                {store.handle && (
+                  <p className={`text-sm mt-1 ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'}`}>
+                    @{store.handle}
+                  </p>
+                )}
+                
                 {store.location && (
                   <p className={`text-sm mt-2 ${store.theme === 'LIGHT' ? 'text-gray-600' : 'text-gray-400'}`}>
                     📍 {store.location}
                   </p>
                 )}
               </div>
+
+              {/* Social Links */}
+              {social.length > 0 && (
+                <div className="flex justify-center items-center gap-3 mb-4 mt-4 flex-wrap">
+                  <SocialIconsDisplay links={social} />
+                </div>
+              )}
 
               {/* Bio */}
               {store.bio && (
@@ -147,8 +162,8 @@ export default function PublicStorePage() {
                 </p>
               )}
 
-              {/* Categories */}
-              {store.categories && store.categories.length > 0 && (
+              {/* Categories - COMMENTED OUT TO HIDE FROM STORE DISPLAY */}
+              {/* {store.categories && store.categories.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-2">
                   {store.categories.map((category, index) => (
                     <span
@@ -163,17 +178,11 @@ export default function PublicStorePage() {
                     </span>
                   ))}
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Body Section */}
             <div className="w-full flex flex-col items-center mt-6">
-              {/* Social Links */}
-              {social.length > 0 && (
-                <div className="flex justify-center items-center gap-3 mb-4 flex-wrap">
-                  <SocialIconsDisplay links={social} />
-                </div>
-              )}
 
               {/* Custom Links */}
               {customLinks.length > 0 && (

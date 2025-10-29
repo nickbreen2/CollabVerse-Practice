@@ -51,8 +51,8 @@ export default function LinkManager({
       <div className="flex-shrink-0 bg-white dark:bg-gray-950 px-4 pt-4 pb-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Add a New Link</h2>
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            Done
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-3 text-red-600 hover:bg-[#fff2f1] hover:text-red-600">
+            Close
           </Button>
         </div>
 

@@ -9,6 +9,7 @@ import ProfileImageUpload from '@/components/store/ProfileImageUpload'
 import DisplayNameEditModal from '@/components/store/DisplayNameEditModal'
 import LocationEditModal from '@/components/store/LocationEditModal'
 import BioEditModal from '@/components/store/BioEditModal'
+import HandleEditModal from '@/components/store/HandleEditModal'
 import CategoriesEditModal from '@/components/store/CategoriesEditModal'
 import SocialIconsDisplay from '@/components/store/SocialIconsDisplay'
 import { toast } from '@/components/ui/use-toast'
@@ -37,6 +38,7 @@ export default function MyStorePage() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false)
+  const [showHandleModal, setShowHandleModal] = useState(false)
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [showBioModal, setShowBioModal] = useState(false)
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
@@ -291,6 +293,14 @@ export default function MyStorePage() {
     })
   }
 
+  const handleSaveHandle = async (newHandle: string) => {
+    await handleUpdate({ handle: newHandle })
+    toast({
+      title: 'Success',
+      description: 'Username updated',
+    })
+  }
+
   const handleSaveLocation = async (newLocation: string) => {
     await handleUpdate({ location: newLocation })
     toast({
@@ -400,103 +410,52 @@ export default function MyStorePage() {
 
                 {/* Name and Location */}
                 <div className="mb-2">
-                  <div className="relative inline-block group/name">
-                    <h2 
-                      className={`text-3xl font-bold ${
+                  <h2 
+                    className={`text-3xl font-bold ${
+                      isEditing 
+                        ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
+                        : ''
+                    }`}
+                    onClick={() => isEditing && setShowDisplayNameModal(true)}
+                  >
+                    {store.displayName || 'Your Name'}
+                  </h2>
+                  
+                  {/* Username */}
+                  {store.handle && (
+                    <p 
+                      className={`text-sm mt-1 ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'} ${
                         isEditing 
                           ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
                           : ''
                       }`}
-                      onClick={() => isEditing && setShowDisplayNameModal(true)}
+                      onClick={() => isEditing && setShowHandleModal(true)}
                     >
-                      {store.displayName || 'Your Name'}
-                    </h2>
-                    {isEditing && (
-                      <Pencil className="absolute -top-1 -left-6 h-4 w-4 text-gray-500 opacity-0 group-hover/name:opacity-80 transition-opacity duration-200 pointer-events-none" />
-                    )}
-                  </div>
+                      @{store.handle}
+                    </p>
+                  )}
+                  
                   {store.location && (
-                    <div className="relative mt-2">
-                      <div className="inline-block group/location">
-                        <p 
-                          className={`text-sm ${store.theme === 'LIGHT' ? 'text-gray-600' : 'text-gray-400'} ${
-                            isEditing 
-                              ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
-                              : ''
-                          }`}
-                          onClick={() => isEditing && setShowLocationModal(true)}
-                        >
-                          📍 {store.location}
-                        </p>
-                        {isEditing && (
-                          <Pencil className="absolute top-0 -left-5 h-3.5 w-3.5 text-gray-500 opacity-0 group-hover/location:opacity-80 transition-opacity duration-200 pointer-events-none" />
-                        )}
-                      </div>
-                    </div>
+                    <p 
+                      className={`text-sm mt-2 ${store.theme === 'LIGHT' ? 'text-gray-600' : 'text-gray-400'} ${
+                        isEditing 
+                          ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
+                          : ''
+                      }`}
+                      onClick={() => isEditing && setShowLocationModal(true)}
+                    >
+                      📍 {store.location}
+                    </p>
                   )}
                 </div>
 
-                {/* Bio */}
-                {store.bio && (
-                  <div className="relative inline-block group/bio mb-4">
-                    <p 
-                      className={`text-sm leading-relaxed max-w-prose ${
-                        isEditing 
-                          ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
-                          : ''
-                      }`}
-                      onClick={() => isEditing && setShowBioModal(true)}
-                    >
-                      {store.bio}
-                    </p>
-                    {isEditing && (
-                      <Pencil className="absolute top-0 -left-6 h-3.5 w-3.5 text-gray-500 opacity-0 group-hover/bio:opacity-80 transition-opacity duration-200 pointer-events-none" />
-                    )}
-                  </div>
-                )}
-
-                {/* Categories */}
-                {store.categories && store.categories.length > 0 && (
-                  <div className="relative inline-block group/categories">
-                    <div 
-                      className={`flex flex-wrap justify-center gap-2 ${
-                        isEditing ? 'cursor-pointer' : ''
-                      }`}
-                      onClick={() => isEditing && setShowCategoriesModal(true)}
-                    >
-                      {store.categories.map((category, index) => (
-                        <span
-                          key={index}
-                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                            store.theme === 'LIGHT'
-                              ? 'bg-gray-100 text-gray-800'
-                              : 'bg-gray-800 text-gray-200'
-                          } ${
-                            isEditing 
-                              ? 'group-hover/categories:ring-2 group-hover/categories:ring-[#D4D7DC] group-hover/categories:ring-offset-2' 
-                              : ''
-                          }`}
-                        >
-                          {category}
-                        </span>
-                      ))}
-                    </div>
-                    {isEditing && (
-                      <Pencil className="absolute top-0 -left-5 h-3.5 w-3.5 text-gray-500 opacity-0 group-hover/categories:opacity-80 transition-opacity duration-200 pointer-events-none" />
-                    )}
-                  </div>
-                )}
-                </div>
-
-                {/* BODY SECTION - Scrollable content area */}
-                <div className="w-full flex flex-col items-center mt-6">
-                  {/* Social Links */}
-                  {(social.length > 0 || isEditing) && (
-                    <div className="flex justify-center items-center gap-3 mb-4 flex-wrap">
-                      <SocialIconsDisplay 
-                        links={social} 
-                        isEditMode={isEditing}
-                        onEditClick={handleEditPlatform}
+                {/* Social Links */}
+                {(social.length > 0 || isEditing) && (
+                  <div className="flex justify-center items-center gap-3 mb-4 mt-4 flex-wrap">
+                    <SocialIconsDisplay 
+                      links={social} 
+                      isEditMode={isEditing}
+                      onEditClick={handleEditPlatform}
                       />
                       
                       {/* QUICK ADD LINK BUTTON - Edit mode only */}
@@ -522,6 +481,52 @@ export default function MyStorePage() {
                       )}
                     </div>
                   )}
+
+                  {/* Bio */}
+                  {store.bio && (
+                    <p 
+                      className={`text-sm leading-relaxed max-w-prose mb-4 ${
+                        isEditing 
+                          ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
+                          : ''
+                      }`}
+                      onClick={() => isEditing && setShowBioModal(true)}
+                    >
+                      {store.bio}
+                    </p>
+                  )}
+
+                  {/* Categories - COMMENTED OUT TO HIDE FROM STORE DISPLAY */}
+                  {/* {store.categories && store.categories.length > 0 && (
+                    <div className="relative inline-block group/categories">
+                      <div 
+                        className={`flex flex-wrap justify-center gap-2 ${
+                          isEditing ? 'cursor-pointer' : ''
+                        }`}
+                        onClick={() => isEditing && setShowCategoriesModal(true)}
+                      >
+                        {store.categories.map((category, index) => (
+                          <span
+                            key={index}
+                            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                              store.theme === 'LIGHT'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-gray-800 text-gray-200'
+                            } ${
+                              isEditing 
+                                ? 'group-hover/categories:ring-2 group-hover/categories:ring-[#D4D7DC] group-hover/categories:ring-offset-2' 
+                                : ''
+                            }`}
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                      {isEditing && (
+                        <Pencil className="absolute top-0 -left-5 h-3.5 w-3.5 text-gray-500 opacity-0 group-hover/categories:opacity-80 transition-opacity duration-200 pointer-events-none" />
+                      )}
+                    </div>
+                  )} */}
 
                   {/* Custom Links */}
                   {(customLinks.length > 0 || isEditing) && (
@@ -924,6 +929,14 @@ export default function MyStorePage() {
         currentName={store.displayName || ''}
         onClose={() => setShowDisplayNameModal(false)}
         onSave={handleSaveDisplayName}
+      />
+
+      {/* HANDLE/USERNAME EDIT MODAL */}
+      <HandleEditModal
+        open={showHandleModal}
+        currentHandle={store.handle || ''}
+        onClose={() => setShowHandleModal(false)}
+        onSave={handleSaveHandle}
       />
 
       {/* LOCATION EDIT MODAL */}

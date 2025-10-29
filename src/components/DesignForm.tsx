@@ -173,9 +173,9 @@ export default function DesignForm({ store, onUpdate }: DesignFormProps) {
             />
           )}
           <div
-            className={`absolute inset-0 bg-gradient-to-b ${
-              store.theme === 'LIGHT' ? 'from-white/90' : 'from-black/90'
-            } via-transparent/50 to-transparent`}
+            className={`absolute inset-0 bg-gradient-to-b from-transparent via-transparent ${
+              store.theme === 'LIGHT' ? 'to-white' : 'to-black'
+            }`}
           />
         </div>
         <p className="text-xs text-muted-foreground">

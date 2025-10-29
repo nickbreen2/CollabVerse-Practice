@@ -27,7 +27,10 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
           : 'bg-black text-white border-gray-800'
       }`}
     >
-      <Banner src={store.bannerUrl || undefined} theme={store.theme} />
+      {/* Banner with height container */}
+      <div className="relative h-48 w-full overflow-hidden">
+        <Banner src={store.bannerUrl || undefined} theme={store.theme} />
+      </div>
 
       <div className="relative px-8 pb-8 -mt-16">
         {/* Avatar */}
@@ -46,6 +49,14 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
             <h2 className="text-3xl font-bold">
               {store.displayName || 'Your Name'}
             </h2>
+            
+            {/* Username */}
+            {store.handle && (
+              <p className="text-sm text-gray-500 mt-1">
+                @{store.handle}
+              </p>
+            )}
+            
             {store.location && (
               <p className="text-sm text-muted-foreground mt-1">
                 📍 {store.location}
@@ -53,12 +64,19 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
             )}
           </div>
 
+          {/* Social Links */}
+          {social.length > 0 && (
+            <div className="flex gap-3 pt-4">
+              <SocialIconsDisplay links={social} />
+            </div>
+          )}
+
           {store.bio && (
             <p className="text-sm leading-relaxed">{store.bio}</p>
           )}
 
-          {/* Categories */}
-          {store.categories && store.categories.length > 0 && (
+          {/* Categories - COMMENTED OUT TO HIDE FROM STORE DISPLAY */}
+          {/* {store.categories && store.categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {store.categories.map((category, index) => (
                 <span
@@ -73,14 +91,7 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
                 </span>
               ))}
             </div>
-          )}
-
-          {/* Social Links */}
-          {social.length > 0 && (
-            <div className="flex gap-3 pt-2">
-              <SocialIconsDisplay links={social} />
-            </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
