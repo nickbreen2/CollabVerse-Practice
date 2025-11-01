@@ -59,7 +59,6 @@ export const StoreUpdateSchema = z.object({
   location: z.string().max(60).optional(),
   bio: z.string().max(280).optional(),
   avatarUrl: z.string().url().optional().or(z.literal('')),
-  bannerUrl: z.string().url().optional().or(z.literal('')),
   theme: z.enum(['LIGHT', 'DARK']).optional(),
   social: z
     .array(

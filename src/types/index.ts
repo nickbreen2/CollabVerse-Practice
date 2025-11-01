@@ -21,7 +21,6 @@ export interface StoreUpdatePayload {
   location?: string
   bio?: string
   avatarUrl?: string
-  bannerUrl?: string
   theme?: Theme
   social?: SocialLink[]
   categories?: string[]

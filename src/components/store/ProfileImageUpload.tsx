@@ -11,6 +11,7 @@ interface ProfileImageUploadProps {
   onUpdate: (avatarUrl: string) => void
   showHoverOverlay?: boolean
   className?: string
+  isBannerMode?: boolean
 }
 
 export default function ProfileImageUpload({
@@ -19,6 +20,7 @@ export default function ProfileImageUpload({
   onUpdate,
   showHoverOverlay = false,
   className = 'h-32 w-32',
+  isBannerMode = false,
 }: ProfileImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
@@ -71,6 +73,66 @@ export default function ProfileImageUpload({
     }
   }
 
+  // Banner mode - full width/height overlay
+  if (isBannerMode) {
+    return (
+      <div className={className}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleImageUpload}
+        />
+        
+        <div
+          className={`absolute inset-0 ${showHoverOverlay ? 'cursor-pointer' : ''} z-40`}
+          onMouseEnter={() => showHoverOverlay && setIsHovered(true)}
+          onMouseLeave={() => showHoverOverlay && setIsHovered(false)}
+          onClick={handleClick}
+        >
+          {/* Hover Overlay for banner - Pill button with glass effect */}
+          {showHoverOverlay && (
+            <div
+              className={`
+                absolute inset-0
+                flex items-center justify-center
+                transition-opacity duration-200
+                ${isHovered || uploading ? 'opacity-100' : 'opacity-0'}
+              `}
+            >
+              <button
+                className={`
+                  px-6 py-3 rounded-full
+                  flex items-center gap-2
+                  backdrop-blur-md
+                  border border-white/30
+                  shadow-lg
+                  transition-all duration-200
+                  ${uploading 
+                    ? 'bg-white/20 text-white cursor-wait' 
+                    : 'bg-white/10 hover:bg-white/20 text-white cursor-pointer hover:scale-105'
+                  }
+                `}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleClick()
+                }}
+                disabled={uploading}
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  {uploading ? 'Uploading...' : 'Change Background image'}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Default circular avatar mode
   return (
     <div className="relative inline-block">
       <input

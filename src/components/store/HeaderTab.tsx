@@ -340,19 +340,22 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
               </p>
             </div>
           </div>
-
-          {/* Save Button at Bottom - Shows when there are changes */}
-          {hasChanges && (
-            <Button 
-              onClick={handleSave}
-              disabled={isSaving || isCheckingHandle || !!handleError}
-              className="w-full mt-6"
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          )}
         </div>
       </div>
+
+      {/* Fixed Save Button Footer - Shows when there are changes */}
+      {hasChanges && (
+        <div className="flex-shrink-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+          <Button 
+            onClick={handleSave}
+            disabled={isSaving || isCheckingHandle || !!handleError}
+            className="w-full"
+            size="lg"
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

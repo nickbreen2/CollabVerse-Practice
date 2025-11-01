@@ -99,6 +99,12 @@ export default function MyStorePage() {
     }
   }
 
+  // Preview-only update (updates local state without saving to backend)
+  const handlePreviewUpdate = (updates: Partial<CreatorStore>) => {
+    if (!store) return
+    setStore({ ...store, ...updates })
+  }
+
 
   if (loading) {
     return (
@@ -359,11 +365,38 @@ export default function MyStorePage() {
                   ${store.theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
                 `}
               >
-              {/* Banner/header area with toggle button */}
-              <div className="relative h-48 w-full overflow-hidden">
-                <Banner src={store.bannerUrl || undefined} theme={store.theme} />
+              {/* Banner/header area with profile image as background */}
+              <div className="relative w-full overflow-hidden group" style={{ height: '380px' }}>
+                {/* Profile image as background layer (z-0) */}
+                <div className="absolute inset-0 z-0">
+                  <Banner theme={store.theme} avatarUrl={store.avatarUrl} initials={initials} />
+                </div>
                 
-                {/* TOP-LEFT TOGGLE - Inside banner with high z-index */}
+                {/* LinkMe-style bottom fade overlay (z-10) - Extended to cover text overlap area */}
+                <div 
+                  className="absolute left-0 right-0 w-full pointer-events-none z-10"
+                  style={{
+                    bottom: '-1px',
+                    height: '100%',
+                    background: store.theme === 'LIGHT'
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 97%, rgba(255,255,255,0.7) 98%, rgba(255,255,255,1) 99%, #FFFFFF 99%)'
+                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 97%, rgba(0,0,0,0.7) 98%, rgba(0,0,0,1) 99%, #000000 99%)'
+                  }}
+                />
+                
+                {/* Edit overlay for profile image - Only in edit mode (z-30) */}
+                {isEditing && (
+                  <ProfileImageUpload
+                    avatarUrl={store.avatarUrl}
+                    initials={initials}
+                    onUpdate={(url) => handleUpdate({ avatarUrl: url })}
+                    showHoverOverlay={true}
+                    className="absolute inset-0 w-full h-full z-30"
+                    isBannerMode={true}
+                  />
+                )}
+                
+                {/* TOP-LEFT TOGGLE - Inside banner with high z-index (z-50) */}
                 <button
                   onClick={handleToggle}
                   className="absolute left-6 top-6 z-50 px-4 py-2 bg-white text-black rounded-full shadow-xl font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
@@ -385,29 +418,33 @@ export default function MyStorePage() {
               {/* PROFILE BODY - Fixed Header Position */}
               <div
                 className={`
-                  relative
+                  relative z-20
                   w-full
                   flex flex-col items-center text-center
-                  px-6 pt-24 pb-10
-                  sm:px-10 md:pt-32
-                  -translate-y-64
+                  px-6 pt-6 pb-10
+                  sm:px-10 sm:pt-8
+                  -translate-y-16
                   transition-transform duration-300
-                  ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}
                 `}
               >
+                {/* Background that starts where text begins */}
+                <div className={`absolute inset-0 ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}`} style={{ top: '40px', zIndex: 1 }} />
+                
+                {/* Gradient overlay to cover the split between banner and background */}
+                <div 
+                  className="absolute left-0 right-0 w-full pointer-events-none"
+                  style={{
+                    top: '-20px',
+                    height: '70px',
+                    zIndex: 10,
+                    background: store.theme === 'LIGHT'
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 15%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.88) 45%, rgba(255,255,255,0.96) 60%, rgba(255,255,255,1) 70%, #FFFFFF 100%)'
+                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.88) 45%, rgba(0,0,0,0.96) 60%, rgba(0,0,0,1) 70%, #000000 100%)'
+                  }}
+                />
+                
                 {/* HEADER SECTION - Fixed position from top */}
-                <div className="w-full flex flex-col items-center">
-                  {/* Avatar */}
-                  <div className="mb-4">
-                    <ProfileImageUpload
-                      avatarUrl={store.avatarUrl}
-                      initials={initials}
-                      onUpdate={(url) => handleUpdate({ avatarUrl: url })}
-                      showHoverOverlay={isEditing}
-                      className="h-32 w-32"
-                    />
-                  </div>
-
+                <div className="w-full flex flex-col items-center relative" style={{ zIndex: 20 }}>
                 {/* Name and Location */}
                 <div className="mb-2">
                   <h2 
@@ -560,7 +597,7 @@ export default function MyStorePage() {
 
                   {/* Custom Links */}
                   {(customLinks.length > 0 || isEditing) && (
-                    <div className="w-full max-w-md">
+                    <div className="w-full max-w-md relative" style={{ zIndex: 25 }}>
                       {isEditing ? (
                         // Edit mode - Wrap in card-style box like Bio
                         <div
@@ -933,7 +970,8 @@ export default function MyStorePage() {
               <div className="h-full overflow-y-auto">
                 <EditSidebar 
                   store={store} 
-                  onUpdate={handleUpdate} 
+                  onUpdate={handleUpdate}
+                  onPreviewUpdate={handlePreviewUpdate}
                   initialView={sidebarView}
                   initialCustomLinkView={customLinkView}
                   editingCustomLinkId={editingCustomLinkId}

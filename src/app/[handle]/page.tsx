@@ -18,7 +18,6 @@ interface StoreData {
   location: string | null
   bio: string | null
   avatarUrl: string | null
-  bannerUrl: string | null
   theme: 'LIGHT' | 'DARK'
   categories: string[]
   social: any
@@ -102,32 +101,52 @@ export default function PublicStorePage() {
             ${store.theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
           `}
         >
-          {/* Banner */}
-          <div className="relative h-48 w-full overflow-hidden">
-            <Banner src={store.bannerUrl || undefined} theme={store.theme} />
+          {/* Banner with Profile Image as background */}
+          <div className="relative w-full overflow-hidden" style={{ height: '380px' }}>
+            {/* Profile image as background layer (z-0) */}
+            <div className="absolute inset-0 z-0">
+              <Banner theme={store.theme} avatarUrl={store.avatarUrl} initials={initials} />
+            </div>
+            
+            {/* LinkMe-style bottom fade overlay (z-10) - Extended to cover text overlap area */}
+            <div 
+              className="absolute left-0 right-0 w-full pointer-events-none z-10"
+              style={{
+                bottom: '-1px',
+                height: '100%',
+                background: store.theme === 'LIGHT'
+                  ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 97%, rgba(255,255,255,0.7) 98%, rgba(255,255,255,1) 99%, #FFFFFF 99%)'
+                  : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 97%, rgba(0,0,0,0.7) 98%, rgba(0,0,0,1) 99%, #000000 99%)'
+              }}
+            />
           </div>
 
           {/* Profile Body */}
           <div
             className={`
-              relative w-full flex flex-col items-center text-center
-              px-6 pt-24 pb-10 sm:px-10 md:pt-32
-              -translate-y-64
-              ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}
+              relative z-20 w-full flex flex-col items-center text-center
+              px-6 pt-6 pb-10 sm:px-10 sm:pt-8
+              -translate-y-16
             `}
           >
+            {/* Background that starts where text begins */}
+            <div className={`absolute inset-0 ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}`} style={{ top: '40px', zIndex: 1 }} />
+            
+            {/* Gradient overlay to cover the split between banner and background */}
+            <div 
+              className="absolute left-0 right-0 w-full pointer-events-none"
+              style={{
+                top: '-20px',
+                height: '70px',
+                zIndex: 10,
+                background: store.theme === 'LIGHT'
+                  ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 15%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.88) 45%, rgba(255,255,255,0.96) 60%, rgba(255,255,255,1) 70%, #FFFFFF 100%)'
+                  : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.88) 45%, rgba(0,0,0,0.96) 60%, rgba(0,0,0,1) 70%, #000000 100%)'
+              }}
+            />
+            
             {/* Header Section */}
-            <div className="w-full flex flex-col items-center">
-              {/* Avatar */}
-              <div className="mb-4">
-                <Avatar className="h-32 w-32 border-4 border-white dark:border-black shadow-xl">
-                  <AvatarImage src={store.avatarUrl || undefined} />
-                  <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-
+            <div className="w-full flex flex-col items-center relative" style={{ zIndex: 20 }}>
               {/* Name and Location */}
               <div className="mb-2">
                 <h2 className="text-3xl font-bold">
@@ -182,7 +201,7 @@ export default function PublicStorePage() {
             </div>
 
             {/* Body Section */}
-            <div className="w-full flex flex-col items-center mt-6">
+            <div className="w-full flex flex-col items-center mt-6 relative" style={{ zIndex: 20 }}>
 
               {/* Custom Links */}
               {customLinks.length > 0 && (

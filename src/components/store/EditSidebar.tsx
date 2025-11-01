@@ -13,6 +13,7 @@ import DesignForm from '../DesignForm'
 interface EditSidebarProps {
   store: CreatorStore
   onUpdate: (data: Partial<CreatorStore>) => void
+  onPreviewUpdate?: (data: Partial<CreatorStore>) => void
   initialView?: SidebarView
   initialCustomLinkView?: 'manager' | 'add' | 'edit'
   editingCustomLinkId?: string
@@ -25,7 +26,7 @@ interface EditSidebarProps {
 
 type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks' | 'bio'
 
-export default function EditSidebar({ store, onUpdate, initialView, initialCustomLinkView, editingCustomLinkId, initialPlatformView, editingPlatformNetwork, onViewChange, onOpenCustomLinksAdd, onOpenPlatformsAdd }: EditSidebarProps) {
+export default function EditSidebar({ store, onUpdate, onPreviewUpdate, initialView, initialCustomLinkView, editingCustomLinkId, initialPlatformView, editingPlatformNetwork, onViewChange, onOpenCustomLinksAdd, onOpenPlatformsAdd }: EditSidebarProps) {
   const [currentView, setCurrentView] = useState<SidebarView>(initialView || 'overview')
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content')
 
@@ -164,7 +165,7 @@ export default function EditSidebar({ store, onUpdate, initialView, initialCusto
         </TabsContent>
         
         <TabsContent value="design" className="mt-0 px-6 py-6">
-          <DesignForm store={store} onUpdate={onUpdate} />
+          <DesignForm store={store} onUpdate={onUpdate} onPreviewUpdate={onPreviewUpdate} />
         </TabsContent>
       </div>
     </Tabs>
