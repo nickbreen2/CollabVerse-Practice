@@ -196,6 +196,54 @@ export default function AddCustomLinkPage({ onBack, onSave, theme }: AddCustomLi
   const platformIcon = url ? detectPlatformFromUrl(url) : 'custom-link'
   const displayIcon = customIconUrl ? customIconUrl : platformIcon
 
+  // Helper function to get icon URL for background
+  const getIconUrlForBackground = () => {
+    if (customIconUrl) return customIconUrl
+    
+    const iconFileMap: Record<string, string> = {
+      TikTok: theme === 'DARK' ? 'tiktok-whitemode-preview.svg' : 'TikTok-preview.svg',
+      Instagram: 'Instagram-preview.svg',
+      YouTube: 'YouTube-preview.svg',
+      Snapchat: 'Snapchat-preview.svg',
+      Twitter: 'twitter-preview.svg',
+      Discord: 'Discord-preview.svg',
+      Threads: 'Threads-preview.svg',
+      Reddit: 'Reddit-preview.svg',
+      Facebook: 'Facebook-preview.svg',
+      OnlyFans: 'OnlyFans-preview.svg',
+      Clubhouse: 'Clubhouse-preview.svg',
+      WhatsApp: 'WhatsApp-preview.svg',
+      Telegram: 'Telegram-preview.svg',
+      LinkedIn: 'LinkedIn-preview.svg',
+      Skype: 'Skype-preview.svg',
+      GitHub: 'GitHub-preview.svg',
+      Calendly: 'Calendly-preview.svg',
+      Spotify: 'Spotify-preview.svg',
+      AppleMusic: 'Apple-Music-preview.svg',
+      Soundcloud: 'Soundcloud-preview.svg',
+      YoutubeMusic: 'Youtube-Music-preview.svg',
+      AmazonMusic: 'Amazon-Music-preview.svg',
+      Pandora: 'Pandora-preview.svg',
+      PayPal: 'PayPal-preview.svg',
+      Venmo: 'Venmo-preview.svg',
+      CashApp: 'Cash-App-preview.svg',
+      Zelle: 'Zelle-preview.svg',
+      PlayStation: 'PlayStation-preview.svg',
+      Xbox: 'Xbox-preview.svg',
+      Steam: 'Steam-preview.svg',
+      Twitch: 'Twitch-preview.svg',
+      Kick: 'Kick-preview.svg',
+      ApplePodcast: 'Apple-Podcast-preview.svg',
+      Pinterest: 'Pinterest-preview.svg',
+      VSCO: 'VSCO-preview.svg',
+      Cameo: 'Cameo-preview.svg',
+      Website: 'website-preview.svg',
+      CustomLink: 'custom-link-preview.svg',
+    }
+    const fileName = iconFileMap[platformIcon] || 'custom-link-preview.svg'
+    return `/icons/${fileName}`
+  }
+
   // Calculate preview dimensions based on thumbnail size
   const getPreviewDimensions = () => {
     if (thumbnailSize === 'none') {
@@ -259,9 +307,15 @@ export default function AddCustomLinkPage({ onBack, onSave, theme }: AddCustomLi
                   <div className="absolute inset-0 bg-black/20" />
                 </div>
               ) : thumbnailSize !== 'none' ? (
-                // Placeholder for when size is selected but no image uploaded
-                <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <ImageIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                // Use icon as background when size is selected but no image uploaded
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <img
+                    src={getIconUrlForBackground()}
+                    alt="Icon background"
+                    className="w-3/4 h-3/4 object-contain opacity-30"
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
                 </div>
               ) : null}
 

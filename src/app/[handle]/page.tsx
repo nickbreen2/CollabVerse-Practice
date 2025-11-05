@@ -226,15 +226,65 @@ export default function PublicStorePage() {
 
               {/* Custom Links */}
               {customLinks.length > 0 && (
-                <div className="w-full max-w-md space-y-3 mt-4">
+                <div className="w-full max-w-md mt-4">
+                  <div className="flex flex-wrap gap-3">
                   {customLinks.map((link) => {
                     const platformIcon = detectPlatformFromUrl(link.url)
                     const displayIcon = link.customIconUrl || platformIcon
-                    const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none' && link.thumbnailUrl
+                    const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none'
+                    
+                    // Helper function to get icon URL for background
+                    const getIconUrlForBackground = () => {
+                      if (link.customIconUrl) return link.customIconUrl
+                      
+                      const iconFileMap: Record<string, string> = {
+                        TikTok: store.theme === 'DARK' ? 'tiktok-whitemode-preview.svg' : 'TikTok-preview.svg',
+                        Instagram: 'Instagram-preview.svg',
+                        YouTube: 'YouTube-preview.svg',
+                        Snapchat: 'Snapchat-preview.svg',
+                        Twitter: 'twitter-preview.svg',
+                        Discord: 'Discord-preview.svg',
+                        Threads: 'Threads-preview.svg',
+                        Reddit: 'Reddit-preview.svg',
+                        Facebook: 'Facebook-preview.svg',
+                        OnlyFans: 'OnlyFans-preview.svg',
+                        Clubhouse: 'Clubhouse-preview.svg',
+                        WhatsApp: 'WhatsApp-preview.svg',
+                        Telegram: 'Telegram-preview.svg',
+                        LinkedIn: 'LinkedIn-preview.svg',
+                        Skype: 'Skype-preview.svg',
+                        GitHub: 'GitHub-preview.svg',
+                        Calendly: 'Calendly-preview.svg',
+                        Spotify: 'Spotify-preview.svg',
+                        AppleMusic: 'Apple-Music-preview.svg',
+                        Soundcloud: 'Soundcloud-preview.svg',
+                        YoutubeMusic: 'Youtube-Music-preview.svg',
+                        AmazonMusic: 'Amazon-Music-preview.svg',
+                        Pandora: 'Pandora-preview.svg',
+                        PayPal: 'PayPal-preview.svg',
+                        Venmo: 'Venmo-preview.svg',
+                        CashApp: 'Cash-App-preview.svg',
+                        Zelle: 'Zelle-preview.svg',
+                        PlayStation: 'PlayStation-preview.svg',
+                        Xbox: 'Xbox-preview.svg',
+                        Steam: 'Steam-preview.svg',
+                        Twitch: 'Twitch-preview.svg',
+                        Kick: 'Kick-preview.svg',
+                        ApplePodcast: 'Apple-Podcast-preview.svg',
+                        Pinterest: 'Pinterest-preview.svg',
+                        VSCO: 'VSCO-preview.svg',
+                        Cameo: 'Cameo-preview.svg',
+                        Website: 'website-preview.svg',
+                        CustomLink: 'custom-link-preview.svg',
+                      }
+                      const fileName = iconFileMap[platformIcon] || 'custom-link-preview.svg'
+                      return `/icons/${fileName}`
+                    }
                     
                     // Featured link with thumbnail
                     if (isFeatured) {
                       const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                      const width = link.thumbnailSize === 'big' ? 'w-full' : 'w-[calc(50%-0.375rem)]'
                       return (
                         <a
                           key={link.id}
@@ -242,19 +292,35 @@ export default function PublicStorePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`
-                            relative block w-full ${height} rounded-xl overflow-hidden
+                            relative block ${width} ${height} rounded-xl overflow-hidden
                             transition-all duration-200 hover:scale-[1.02] hover:shadow-lg
                           `}
                         >
                           {/* Background Image */}
                           <div className="absolute inset-0">
-                            <img
-                              src={link.thumbnailUrl}
-                              alt={link.title}
-                              className="w-full h-full object-cover"
-                            />
-                            {/* Dark overlay for better text readability */}
-                            <div className="absolute inset-0 bg-black/20" />
+                            {link.thumbnailUrl ? (
+                              <>
+                                <img
+                                  src={link.thumbnailUrl}
+                                  alt={link.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                {/* Dark overlay for better text readability */}
+                                <div className="absolute inset-0 bg-black/20" />
+                              </>
+                            ) : (
+                              <>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <img
+                                    src={getIconUrlForBackground()}
+                                    alt="Icon background"
+                                    className="w-3/4 h-3/4 object-contain opacity-30"
+                                  />
+                                </div>
+                                {/* Dark overlay for better text readability */}
+                                <div className="absolute inset-0 bg-black/40" />
+                              </>
+                            )}
                           </div>
                           
                           {/* Icon at top-left */}
@@ -313,6 +379,7 @@ export default function PublicStorePage() {
                       </a>
                     )
                   })}
+                  </div>
                 </div>
               )}
             </div>

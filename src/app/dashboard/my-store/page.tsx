@@ -29,6 +29,54 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+// Helper function to get icon URL for background
+const getIconUrlForBackground = (customIconUrl: string | undefined, platformIcon: string, theme?: 'LIGHT' | 'DARK') => {
+  if (customIconUrl) return customIconUrl
+  
+  const iconFileMap: Record<string, string> = {
+    TikTok: theme === 'DARK' ? 'tiktok-whitemode-preview.svg' : 'TikTok-preview.svg',
+    Instagram: 'Instagram-preview.svg',
+    YouTube: 'YouTube-preview.svg',
+    Snapchat: 'Snapchat-preview.svg',
+    Twitter: 'twitter-preview.svg',
+    Discord: 'Discord-preview.svg',
+    Threads: 'Threads-preview.svg',
+    Reddit: 'Reddit-preview.svg',
+    Facebook: 'Facebook-preview.svg',
+    OnlyFans: 'OnlyFans-preview.svg',
+    Clubhouse: 'Clubhouse-preview.svg',
+    WhatsApp: 'WhatsApp-preview.svg',
+    Telegram: 'Telegram-preview.svg',
+    LinkedIn: 'LinkedIn-preview.svg',
+    Skype: 'Skype-preview.svg',
+    GitHub: 'GitHub-preview.svg',
+    Calendly: 'Calendly-preview.svg',
+    Spotify: 'Spotify-preview.svg',
+    AppleMusic: 'Apple-Music-preview.svg',
+    Soundcloud: 'Soundcloud-preview.svg',
+    YoutubeMusic: 'Youtube-Music-preview.svg',
+    AmazonMusic: 'Amazon-Music-preview.svg',
+    Pandora: 'Pandora-preview.svg',
+    PayPal: 'PayPal-preview.svg',
+    Venmo: 'Venmo-preview.svg',
+    CashApp: 'Cash-App-preview.svg',
+    Zelle: 'Zelle-preview.svg',
+    PlayStation: 'PlayStation-preview.svg',
+    Xbox: 'Xbox-preview.svg',
+    Steam: 'Steam-preview.svg',
+    Twitch: 'Twitch-preview.svg',
+    Kick: 'Kick-preview.svg',
+    ApplePodcast: 'Apple-Podcast-preview.svg',
+    Pinterest: 'Pinterest-preview.svg',
+    VSCO: 'VSCO-preview.svg',
+    Cameo: 'Cameo-preview.svg',
+    Website: 'website-preview.svg',
+    CustomLink: 'custom-link-preview.svg',
+  }
+  const fileName = iconFileMap[platformIcon] || 'custom-link-preview.svg'
+  return `/icons/${fileName}`
+}
+
 export default function MyStorePage() {
   const [store, setStore] = useState<CreatorStore | null>(null)
   const [loading, setLoading] = useState(true)
@@ -612,40 +660,65 @@ export default function MyStorePage() {
                           `}
                         >
                           {/* Header Row */}
-                          <div className="px-5 py-3.5 text-left">
+                          <div className="flex items-center justify-between px-5 py-3.5">
                             <span className="font-bold text-sm">Links</span>
+                            <button
+                              onClick={handleQuickAddCustomLink}
+                              className="p-1 hover:opacity-80 transition-opacity"
+                              aria-label="Add new link"
+                            >
+                              <Plus className={`h-5 w-5 ${store.theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
+                            </button>
                           </div>
                           
                           {/* Links Content */}
-                          <div className="px-5 pb-5 pt-2 space-y-3">
+                          <div className="px-5 pb-5 pt-2">
+                            <div className="flex flex-wrap gap-3">
                       {/* Existing Links - Edit Mode */}
                       {customLinks.map((link, index) => {
                         const platformIcon = detectPlatformFromUrl(link.url)
                         const displayIcon = link.customIconUrl || platformIcon
                         const isFirst = index === 0
                         const isLast = index === customLinks.length - 1
-                        const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none' && link.thumbnailUrl
+                        const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none'
                         
                         // Featured link in edit mode
                         if (isFeatured) {
                             const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                            const width = link.thumbnailSize === 'big' ? 'w-full' : 'w-[calc(50%-0.375rem)]'
                             return (
                               <div
                                 key={link.id}
                                 className={`
-                                  relative ${height} rounded-xl overflow-hidden
+                                  relative ${height} ${width} rounded-xl overflow-hidden
                                   transition-all duration-200 group
                                 `}
                               >
                                 {/* Background Image */}
                                 <div className="absolute inset-0">
-                                  <img
-                                    src={link.thumbnailUrl}
-                                    alt={link.title}
-                                    className="w-full h-full object-cover"
-                                  />
-                                  {/* Dark overlay */}
-                                  <div className="absolute inset-0 bg-black/20" />
+                                  {link.thumbnailUrl ? (
+                                    <>
+                                      <img
+                                        src={link.thumbnailUrl}
+                                        alt={link.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                      {/* Dark overlay */}
+                                      <div className="absolute inset-0 bg-black/20" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                        <img
+                                          src={getIconUrlForBackground(link.customIconUrl, platformIcon, store?.theme)}
+                                          alt="Icon background"
+                                          className="w-3/4 h-3/4 object-contain opacity-30"
+                                        />
+                                      </div>
+                                      {/* Dark overlay */}
+                                      <div className="absolute inset-0 bg-black/40" />
+                                    </>
+                                  )}
                                 </div>
                                 
                                 {/* Icon at top-left */}
@@ -839,19 +912,22 @@ export default function MyStorePage() {
                             Click here to add content
                           </p>
                         </button>
+                            </div>
                           </div>
                         </div>
                       ) : (
                         // Preview/Public mode - Simple list without box
-                        <div className="space-y-3 mt-4">
+                        <div className="mt-4">
+                          <div className="flex flex-wrap gap-3">
                       {customLinks.map((link) => {
                         const platformIcon = detectPlatformFromUrl(link.url)
                         const displayIcon = link.customIconUrl || platformIcon
-                        const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none' && link.thumbnailUrl
+                        const isFeatured = link.thumbnailSize && link.thumbnailSize !== 'none'
                         
                         // Featured link in preview mode
                         if (isFeatured) {
                           const height = link.thumbnailSize === 'big' ? 'h-[262px] md:h-[262px]' : 'h-[161px] md:h-[161px]'
+                          const width = link.thumbnailSize === 'big' ? 'w-full' : 'w-[calc(50%-0.375rem)]'
                           return (
                             <a
                               key={link.id}
@@ -859,19 +935,35 @@ export default function MyStorePage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className={`
-                                relative block w-full ${height} rounded-xl overflow-hidden
+                                relative block ${width} ${height} rounded-xl overflow-hidden
                                 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg
                               `}
                             >
                               {/* Background Image */}
                               <div className="absolute inset-0">
-                                <img
-                                  src={link.thumbnailUrl}
-                                  alt={link.title}
-                                  className="w-full h-full object-cover"
-                                />
-                                {/* Dark overlay */}
-                                <div className="absolute inset-0 bg-black/20" />
+                                {link.thumbnailUrl ? (
+                                  <>
+                                    <img
+                                      src={link.thumbnailUrl}
+                                      alt={link.title}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    {/* Dark overlay */}
+                                    <div className="absolute inset-0 bg-black/20" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <img
+                                        src={getIconUrlForBackground(link.customIconUrl, platformIcon, store?.theme)}
+                                        alt="Icon background"
+                                        className="w-3/4 h-3/4 object-contain opacity-30"
+                                      />
+                                    </div>
+                                    {/* Dark overlay */}
+                                    <div className="absolute inset-0 bg-black/40" />
+                                  </>
+                                )}
                               </div>
                               
                               {/* Icon at top-left */}
@@ -930,6 +1022,7 @@ export default function MyStorePage() {
                           </a>
                         )
                       })}
+                          </div>
                         </div>
                       )}
                     </div>
