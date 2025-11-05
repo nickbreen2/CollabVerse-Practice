@@ -38,6 +38,7 @@ model CreatorStore {
   updatedAt       DateTime @updatedAt
   showSocialLinks Boolean  @default(true)
   customLinks     Json?
+  highlights      Json?
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

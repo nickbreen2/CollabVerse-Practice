@@ -81,6 +81,16 @@ export const StoreUpdateSchema = z.object({
       })
     )
     .optional(),
+  highlights: z
+    .array(
+      z.object({
+        id: z.string(),
+        videoUrl: z.string().transform(normalizeUrl).pipe(z.string().url()),
+        title: z.string().max(100).optional(),
+      })
+    )
+    .max(3, 'Maximum 3 highlights allowed')
+    .optional(),
 })
 
 export type SignUpInput = z.infer<typeof SignUpSchema>

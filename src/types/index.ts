@@ -16,6 +16,12 @@ export interface CustomLink {
   customIconUrl?: string
 }
 
+export interface Highlight {
+  id: string
+  videoUrl: string
+  title?: string
+}
+
 export interface StoreUpdatePayload {
   displayName?: string
   location?: string
@@ -25,6 +31,7 @@ export interface StoreUpdatePayload {
   social?: SocialLink[]
   categories?: string[]
   customLinks?: CustomLink[]
+  highlights?: Highlight[]
 }
 
 export interface User {

@@ -19,9 +19,10 @@ import { getPlatformById, Platform } from '@/lib/platformCategories'
 import LinkManagerModal from '@/components/store/LinkManagerModal'
 import AddLinkModal from '@/components/store/AddLinkModal'
 import SelfCollabModal from '@/components/store/SelfCollabModal'
-import { CustomLink } from '@/types'
+import { CustomLink, Highlight } from '@/types'
 import { PlatformIcon } from '@/components/icons/PlatformIcons'
 import { detectPlatformFromUrl } from '@/lib/detectPlatform'
+import VideoEmbed from '@/components/store/VideoEmbed'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,7 +90,7 @@ export default function MyStorePage() {
   const [showBioModal, setShowBioModal] = useState(false)
   const [showCategoriesModal, setShowCategoriesModal] = useState(false)
   const [showSelfCollabModal, setShowSelfCollabModal] = useState(false)
-  const [sidebarView, setSidebarView] = useState<'overview' | 'header' | 'platforms' | 'customLinks' | undefined>(undefined)
+  const [sidebarView, setSidebarView] = useState<'overview' | 'header' | 'platforms' | 'customLinks' | 'highlights' | undefined>(undefined)
   const [customLinkView, setCustomLinkView] = useState<'manager' | 'add' | 'edit' | undefined>(undefined)
   const [editingCustomLinkId, setEditingCustomLinkId] = useState<string | undefined>(undefined)
   const [platformView, setPlatformView] = useState<'add' | 'edit' | undefined>(undefined)
@@ -129,17 +130,22 @@ export default function MyStorePage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to update store')
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || `Failed to update store (${response.status})`
+        console.error('API error response:', errorData)
+        throw new Error(errorMessage)
       }
 
       const updatedStore = await response.json()
       setStore(updatedStore)
       return updatedStore // Return the updated store so callers know the update succeeded
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save changes'
+      console.error('Error updating store:', error)
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to save changes',
+        description: errorMessage,
       })
       throw error // Re-throw so callers can handle the error
     }
@@ -189,6 +195,7 @@ export default function MyStorePage() {
   
   const social = (store.social as any[]) || []
   const customLinks = (store.customLinks as CustomLink[]) || []
+  const highlights = (store.highlights as Highlight[]) || []
   
   const initials = store.displayName
     ?.split(' ')
@@ -1022,6 +1029,75 @@ export default function MyStorePage() {
                           </a>
                         )
                       })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Highlights Section */}
+                  {(highlights.length > 0 || isEditing) && (
+                    <div className="w-full max-w-md mt-6 relative" style={{ zIndex: 25 }}>
+                      {isEditing ? (
+                        // Edit mode - Card-style box
+                        <div
+                          className={`
+                            w-full rounded-xl
+                            ${store.theme === 'LIGHT'
+                              ? 'bg-[#F8FAFB] border border-gray-200'
+                              : 'bg-gray-900 border border-gray-800'
+                            }
+                          `}
+                        >
+                          {/* Header Row */}
+                          <div className="flex items-center justify-between px-5 py-3.5">
+                            <span className="font-bold text-sm">Highlights</span>
+                            <button
+                              onClick={() => {
+                                setSidebarView('highlights')
+                                setMode('edit')
+                              }}
+                              className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center gap-1"
+                            >
+                              Manage
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          </div>
+                          
+                          {/* Highlights Content */}
+                          <div className="pb-5 pt-2">
+                            {highlights.length === 0 ? (
+                              <div className="text-center py-8 text-sm text-gray-500 px-5">
+                                No highlights yet. Click Manage to add.
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 gap-3 px-5">
+                                {highlights.map((highlight) => (
+                                  <div key={highlight.id} className="w-full rounded-xl overflow-hidden">
+                                    <VideoEmbed 
+                                      url={highlight.videoUrl} 
+                                      title={highlight.title} 
+                                      theme={store.theme} 
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        // Preview mode - Direct display
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-3">
+                            {highlights.map((highlight) => (
+                              <div key={highlight.id} className="rounded-xl overflow-hidden">
+                                <VideoEmbed 
+                                  url={highlight.videoUrl} 
+                                  title={highlight.title} 
+                                  theme={store.theme} 
+                                />
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

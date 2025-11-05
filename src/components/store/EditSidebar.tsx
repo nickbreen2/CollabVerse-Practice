@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreatorStore } from '@prisma/client'
-import { ChevronRight, ArrowLeft, User, Heart, Link, MessageCircle } from 'lucide-react'
+import { ChevronRight, ArrowLeft, User, Heart, Link, MessageCircle, Video } from 'lucide-react'
 import HeaderTab from './HeaderTab'
 import ManagePlatformsTab from './ManagePlatformsTab'
 import CustomLinkManagerTab from './CustomLinkManagerTab'
+import HighlightManagerTab from './HighlightManagerTab'
 import BioTab from './BioTab'
 import DesignForm from '../DesignForm'
 
@@ -24,7 +25,7 @@ interface EditSidebarProps {
   onOpenPlatformsAdd?: () => void
 }
 
-type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks' | 'bio'
+type SidebarView = 'overview' | 'header' | 'platforms' | 'customLinks' | 'highlights' | 'bio'
 
 export default function EditSidebar({ store, onUpdate, onPreviewUpdate, initialView, initialCustomLinkView, editingCustomLinkId, initialPlatformView, editingPlatformNetwork, onViewChange, onOpenCustomLinksAdd, onOpenPlatformsAdd }: EditSidebarProps) {
   const [currentView, setCurrentView] = useState<SidebarView>(initialView || 'overview')
@@ -68,6 +69,8 @@ export default function EditSidebar({ store, onUpdate, onPreviewUpdate, initialV
         return <BioTab store={store} onUpdate={onUpdate} onBack={handleBack} />
       case 'customLinks':
         return <CustomLinkManagerTab store={store} onUpdate={onUpdate} onBack={handleBack} initialView={initialCustomLinkView} editingLinkId={editingCustomLinkId} />
+      case 'highlights':
+        return <HighlightManagerTab store={store} onUpdate={onUpdate} onBack={handleBack} />
       case 'overview':
       default:
         return (
@@ -134,6 +137,20 @@ export default function EditSidebar({ store, onUpdate, onPreviewUpdate, initialV
                   <Link className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <span className="font-medium text-sm">Custom Link</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </button>
+
+            {/* Highlights Section */}
+            <button
+              onClick={() => setCurrentView('highlights')}
+              className="w-full flex items-center justify-between p-2.5 rounded-lg border bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <Video className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                </div>
+                <span className="font-medium text-sm">Highlights</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </button>

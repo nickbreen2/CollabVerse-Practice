@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import ConnectCTA from '@/components/store/ConnectCTA'
 import CollabRequestModal from '@/components/store/CollabRequestModal'
-import { CustomLink } from '@/types'
+import { CustomLink, Highlight } from '@/types'
 import { PlatformIcon } from '@/components/icons/PlatformIcons'
 import { detectPlatformFromUrl } from '@/lib/detectPlatform'
 import SocialIconsDisplay from '@/components/store/SocialIconsDisplay'
+import VideoEmbed from '@/components/store/VideoEmbed'
 import Banner from '@/components/Banner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -22,6 +23,7 @@ interface StoreData {
   categories: string[]
   social: any
   customLinks: any
+  highlights: any
   isSelfView: boolean
 }
 
@@ -83,6 +85,7 @@ export default function PublicStorePage() {
 
   const social = (store.social as any[]) || []
   const customLinks = (store.customLinks as CustomLink[]) || []
+  const highlights = (store.highlights as Highlight[]) || []
   
   const initials = store.displayName
     ?.split(' ')
@@ -379,6 +382,23 @@ export default function PublicStorePage() {
                       </a>
                     )
                   })}
+                  </div>
+                </div>
+              )}
+
+              {/* Highlights Section */}
+              {highlights.length > 0 && (
+                <div className="w-full max-w-md mt-6">
+                  <div className="grid grid-cols-2 gap-3">
+                    {highlights.map((highlight) => (
+                      <div key={highlight.id} className="rounded-xl overflow-hidden">
+                        <VideoEmbed 
+                          url={highlight.videoUrl} 
+                          title={highlight.title} 
+                          theme={store.theme}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
