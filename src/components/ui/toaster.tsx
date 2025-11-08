@@ -15,6 +15,9 @@ export function Toaster() {
 
   return (
     <ToastProvider>
+      <ToastViewport 
+        className={toasts.length === 0 ? "!h-0 !w-0 !p-0 !m-0 overflow-hidden" : ""}
+      />
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
@@ -29,7 +32,6 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
     </ToastProvider>
   )
 }

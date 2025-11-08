@@ -39,6 +39,7 @@ export default async function DashboardLayout({
 
   // Fetch pending collab requests count and newest timestamp
   let pendingCount = 0
+  let totalCollabCount = 0
   let newestPendingTimestamp: string | null = null
   if (user?.store?.id) {
     const pendingRequests = await prisma.collabRequest.findMany({
@@ -62,6 +63,12 @@ export default async function DashboardLayout({
       },
     })
     
+    totalCollabCount = await prisma.collabRequest.count({
+      where: {
+        creatorId: user.store.id,
+      },
+    })
+    
     if (pendingRequests.length > 0) {
       newestPendingTimestamp = pendingRequests[0].createdAt.toISOString()
     }
@@ -72,6 +79,7 @@ export default async function DashboardLayout({
       <DashboardNav 
         user={userData} 
         pendingCollabCount={pendingCount}
+        totalCollabCount={totalCollabCount}
         newestPendingTimestamp={newestPendingTimestamp}
       />
       <main className="flex-1 overflow-hidden">{children}</main>

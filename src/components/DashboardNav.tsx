@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -42,45 +41,13 @@ interface DashboardNavProps {
     avatarUrl?: string | null
   }
   pendingCollabCount?: number
+  totalCollabCount?: number
   newestPendingTimestamp?: string | null
 }
 
-export default function DashboardNav({ user, pendingCollabCount = 0, newestPendingTimestamp }: DashboardNavProps) {
+export default function DashboardNav({ user, pendingCollabCount = 0, totalCollabCount = 0, newestPendingTimestamp }: DashboardNavProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [showNotificationBadge, setShowNotificationBadge] = useState(false)
-
-  // Check if there are unseen collab requests
-  useEffect(() => {
-    if (pendingCollabCount > 0 && newestPendingTimestamp) {
-      const lastSeen = localStorage.getItem('collabs_last_seen')
-      
-      if (!lastSeen) {
-        // Never visited, show badge
-        setShowNotificationBadge(true)
-      } else {
-        // Compare timestamps
-        const lastSeenTime = new Date(lastSeen).getTime()
-        const newestRequestTime = new Date(newestPendingTimestamp).getTime()
-        
-        // Show badge if newest request is newer than last seen
-        setShowNotificationBadge(newestRequestTime > lastSeenTime)
-      }
-    } else {
-      setShowNotificationBadge(false)
-    }
-  }, [pendingCollabCount, newestPendingTimestamp])
-
-  // Update last seen when navigating away from collabs
-  useEffect(() => {
-    const previousPath = pathname
-    
-    return () => {
-      if (previousPath === '/dashboard/collabs') {
-        localStorage.setItem('collabs_last_seen', new Date().toISOString())
-      }
-    }
-  }, [pathname])
 
   const handleSignOut = async () => {
     try {
@@ -121,7 +88,7 @@ export default function DashboardNav({ user, pendingCollabCount = 0, newestPendi
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
-          const showBadge = item.href === '/dashboard/collabs' && showNotificationBadge
+          const showTotalCount = item.href === '/dashboard/collabs' && totalCollabCount > 0
           
           return (
             <Link
@@ -138,9 +105,9 @@ export default function DashboardNav({ user, pendingCollabCount = 0, newestPendi
                 <Icon className={cn('h-5 w-5', isActive && 'text-[#1F2124] dark:text-[#1F2124]')} />
                 {item.label}
               </div>
-              {showBadge && (
-                <span className="h-5 w-5 min-w-[20px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                  {pendingCollabCount > 9 ? '9+' : pendingCollabCount}
+              {showTotalCount && (
+                <span className="px-2.5 py-1 text-sm font-medium bg-primary/10 text-primary rounded-full">
+                  {totalCollabCount}
                 </span>
               )}
             </Link>

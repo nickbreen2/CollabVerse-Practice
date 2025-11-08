@@ -20,13 +20,15 @@ export async function GET() {
     }
 
     // Fetch collab requests for this creator
+    // Show pinned requests first, then by date
     const requests = await prisma.collabRequest.findMany({
       where: {
         creatorId: store.id,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [
+        { pinned: 'desc' },  // Pinned requests first
+        { createdAt: 'desc' }, // Then by date
+      ],
     })
 
     // Debug: Log links for each request
