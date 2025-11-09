@@ -293,6 +293,7 @@ export default function CollabsPage() {
                         brandName={request.brandName}
                         senderName={request.senderName}
                         email={request.senderEmail}
+                        emailDomain={request.emailDomain}
                         size={48}
                       />
                       <div className="flex-1 flex items-start justify-between">

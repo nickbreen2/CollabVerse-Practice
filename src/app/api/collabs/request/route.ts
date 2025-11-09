@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { CollabRequestSchema } from '@/lib/validations'
+import { extractEmailDomain } from '@/lib/brandfetch'
 import { z } from 'zod'
 
 export async function POST(request: NextRequest) {
@@ -48,6 +49,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Extract email domain
+    const emailDomain = extractEmailDomain(validatedData.senderEmail)
+
     // Ensure links is always an array (validation transform should handle this, but double-check)
     const linksArray = Array.isArray(validatedData.links) 
       ? validatedData.links.filter(link => {
@@ -71,6 +75,7 @@ export async function POST(request: NextRequest) {
         senderName: validatedData.senderName,
         brandName: validatedData.brandName || null,
         senderEmail: validatedData.senderEmail,
+        emailDomain: emailDomain || null, // Store extracted domain for Brandfetch logo lookup
         budget: validatedData.budget ? Number(validatedData.budget) : null,
         description: validatedData.description || null,
         links: linksArray,

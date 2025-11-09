@@ -88,7 +88,6 @@ export default function DashboardNav({ user, pendingCollabCount = 0, totalCollab
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
-          const showTotalCount = item.href === '/dashboard/collabs' && totalCollabCount > 0
           
           return (
             <Link
@@ -105,11 +104,6 @@ export default function DashboardNav({ user, pendingCollabCount = 0, totalCollab
                 <Icon className={cn('h-5 w-5', isActive && 'text-[#1F2124] dark:text-[#1F2124]')} />
                 {item.label}
               </div>
-              {showTotalCount && (
-                <span className="px-2.5 py-1 text-sm font-medium bg-primary/10 text-primary rounded-full">
-                  {totalCollabCount}
-                </span>
-              )}
             </Link>
           )
         })}

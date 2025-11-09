@@ -66,6 +66,7 @@ model CollabRequest {
   senderName  String
   brandName   String?
   senderEmail String
+  emailDomain String?      // NEW: Normalized email domain (e.g., "nike.com")
   budget      Float?
   description String?
   links       String[]
