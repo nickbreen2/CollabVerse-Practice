@@ -7,7 +7,7 @@ import { getSession } from "@/lib/auth";
 export const runtime = "nodejs";
 
 const RESERVED_HANDLES = [
-  'admin', 'api', 'login', 'signup', 'dashboard', 'collabverse', 
+  'admin', 'api', 'login', 'signup', 'dashboard', 'collablink', 
   'www', 'auth', 'signin', 'signout'
 ];
 
@@ -17,6 +17,9 @@ const SignUpSchema = z.object({
   handle: z.string().trim().toLowerCase()
     .regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, "Use lowercase letters, numbers, and hyphens; no leading/trailing hyphen")
     .min(3).max(30),
+  displayName: z.string().trim().min(1, "Display name is required").max(100),
+  socialPlatform: z.string().optional(),
+  socialHandle: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -34,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, password, handle } = parsed.data;
+    const { email, password, handle, displayName, socialPlatform, socialHandle } = parsed.data;
 
     // Check reserved handles
     if (RESERVED_HANDLES.includes(handle)) {
@@ -46,6 +49,11 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Prepare social data if provided
+    const socialData = socialPlatform && socialHandle 
+      ? { [socialPlatform]: socialHandle }
+      : {};
+
     const user = await prisma.$transaction(async (tx) => {
       const u = await tx.user.create({ 
         data: { email, passwordHash },
@@ -55,7 +63,9 @@ export async function POST(request: Request) {
         data: { 
           userId: u.id, 
           handle,
-          displayName: handle 
+          displayName,
+          avatarUrl: '/icons/Profile Image theme colors-not saturated-2.svg',
+          social: Object.keys(socialData).length > 0 ? socialData : undefined
         } 
       });
       return u;

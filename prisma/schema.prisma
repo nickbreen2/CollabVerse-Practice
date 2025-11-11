@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,32 +8,39 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  passwordHash String
-  role         Role          @default(CREATOR)
-  store        CreatorStore?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                  String        @id @default(cuid())
+  email               String        @unique
+  passwordHash        String
+  role                Role          @default(CREATOR)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  accountStatus       AccountStatus @default(ACTIVE)
+  birthDate           DateTime?
+  name                String?
+  scheduledDeletionAt DateTime?
+  store               CreatorStore?
 }
 
 model CreatorStore {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  handle      String   @unique
-  displayName String?
-  location    String?
-  bio         String?  @db.Text
-  avatarUrl   String?
-  bannerUrl   String?
-  theme       Theme    @default(DARK)
-  categories  String[]
-  social      Json?
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  handle          String   @unique
+  displayName     String?
+  location        String?
+  bio             String?
+  avatarUrl       String?
+  bannerUrl       String?
+  theme           Theme    @default(DARK)
+  categories      String[]
+  social          Json?
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  showSocialLinks Boolean  @default(true)
+  customLinks     Json?
+  highlights      Json?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collabRequests  CollabRequest[]
 }
 
 enum Role {
@@ -49,3 +53,35 @@ enum Theme {
   DARK
 }
 
+enum AccountStatus {
+  ACTIVE
+  PAUSED
+  PENDING_DELETION
+  DELETED
+}
+
+model CollabRequest {
+  id          String       @id @default(cuid())
+  creatorId   String
+  senderName  String
+  brandName   String?
+  senderEmail String
+  emailDomain String?      // NEW: Normalized email domain (e.g., "nike.com")
+  budget      Float?
+  description String?
+  links       String[]
+  status      CollabStatus @default(PENDING)
+  pinned      Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  creator     CreatorStore @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+  @@index([creatorId, pinned])
+}
+
+enum CollabStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}

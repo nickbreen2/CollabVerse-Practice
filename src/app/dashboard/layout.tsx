@@ -21,6 +21,7 @@ export default async function DashboardLayout({
       email: true,
       store: {
         select: {
+          id: true,
           displayName: true,
           avatarUrl: true,
         },
@@ -36,9 +37,51 @@ export default async function DashboardLayout({
       }
     : { email: session.email }
 
+  // Fetch pending collab requests count and newest timestamp
+  let pendingCount = 0
+  let totalCollabCount = 0
+  let newestPendingTimestamp: string | null = null
+  if (user?.store?.id) {
+    const pendingRequests = await prisma.collabRequest.findMany({
+      where: {
+        creatorId: user.store.id,
+        status: 'PENDING',
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 1,
+      select: {
+        createdAt: true,
+      },
+    })
+    
+    pendingCount = await prisma.collabRequest.count({
+      where: {
+        creatorId: user.store.id,
+        status: 'PENDING',
+      },
+    })
+    
+    totalCollabCount = await prisma.collabRequest.count({
+      where: {
+        creatorId: user.store.id,
+      },
+    })
+    
+    if (pendingRequests.length > 0) {
+      newestPendingTimestamp = pendingRequests[0].createdAt.toISOString()
+    }
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      <DashboardNav user={userData} />
+      <DashboardNav 
+        user={userData} 
+        pendingCollabCount={pendingCount}
+        totalCollabCount={totalCollabCount}
+        newestPendingTimestamp={newestPendingTimestamp}
+      />
       <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   )

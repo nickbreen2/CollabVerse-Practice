@@ -1,10 +1,25 @@
-import { CreatorStore, Theme } from '@prisma/client'
+import { CreatorStore, Theme, AccountStatus, CollabRequest, CollabStatus } from '@prisma/client'
 
-export type { CreatorStore, Theme }
+export type { CreatorStore, Theme, AccountStatus, CollabRequest, CollabStatus }
 
 export interface SocialLink {
   network: string
   url: string
+}
+
+export interface CustomLink {
+  id: string
+  title: string
+  url: string
+  thumbnailUrl?: string
+  thumbnailSize?: 'big' | 'small' | 'none'
+  customIconUrl?: string
+}
+
+export interface Highlight {
+  id: string
+  videoUrl: string
+  title?: string
 }
 
 export interface StoreUpdatePayload {
@@ -12,10 +27,11 @@ export interface StoreUpdatePayload {
   location?: string
   bio?: string
   avatarUrl?: string
-  bannerUrl?: string
   theme?: Theme
   social?: SocialLink[]
   categories?: string[]
+  customLinks?: CustomLink[]
+  highlights?: Highlight[]
 }
 
 export interface User {
@@ -32,6 +48,22 @@ export interface AuthResponse {
 
 export interface UploadResponse {
   url: string
+  error?: string
+}
+
+export interface CollabRequestPayload {
+  creatorId: string
+  senderName: string
+  brandName?: string
+  senderEmail: string
+  budget?: number
+  description?: string
+  links?: string[]
+}
+
+export interface CollabRequestResponse {
+  success: boolean
+  request?: CollabRequest
   error?: string
 }
 

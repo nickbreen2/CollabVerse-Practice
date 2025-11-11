@@ -15,11 +15,14 @@ type Props = {
 export default function HandleBar({ handle, className }: Props) {
   const publicPath = useMemo(() => {
     const h = (handle ?? "").trim();
-    return h ? `collabverse.io/${h}` : "collabverse.io/…";
+    return h ? `collabl.ink/${h}` : "collabl.ink/…";
   }, [handle]);
 
   const fullOpenUrl = useMemo(() => {
-    const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+    // Use window.location.origin for the base URL to ensure correct port
+    const base = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
     return `${base.replace(/\/+$/, "")}/${(handle ?? "").trim()}`;
   }, [handle]);
 

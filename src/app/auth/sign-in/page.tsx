@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -59,7 +60,15 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight">CollabVerse</h1>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/icons/collablink.svg"
+              alt="CollabLink"
+              width={268}
+              height={56}
+              priority
+            />
+          </div>
           <p className="mt-2 text-muted-foreground">
             Sign in to your account
           </p>

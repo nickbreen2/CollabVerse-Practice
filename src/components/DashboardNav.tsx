@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown } from 'lucide-react'
+import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
@@ -39,9 +40,12 @@ interface DashboardNavProps {
     displayName?: string | null
     avatarUrl?: string | null
   }
+  pendingCollabCount?: number
+  totalCollabCount?: number
+  newestPendingTimestamp?: string | null
 }
 
-export default function DashboardNav({ user }: DashboardNavProps) {
+export default function DashboardNav({ user, pendingCollabCount = 0, totalCollabCount = 0, newestPendingTimestamp }: DashboardNavProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -69,7 +73,7 @@ export default function DashboardNav({ user }: DashboardNavProps) {
     <aside className="w-64 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col h-screen sticky top-0">
       <div className="p-6 flex-shrink-0">
         <Image 
-          src="/CollabLink(04).svg" 
+          src="/icons/collablink.svg" 
           alt="CollabLink" 
           width={200} 
           height={60}
@@ -90,14 +94,16 @@ export default function DashboardNav({ user }: DashboardNavProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors relative',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-[#EAECF2] text-[#1F2124] dark:bg-[#EAECF2] dark:text-[#1F2124]'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
-              <Icon className="h-5 w-5" />
-              {item.label}
+              <div className="flex items-center gap-3">
+                <Icon className={cn('h-5 w-5', isActive && 'text-[#1F2124] dark:text-[#1F2124]')} />
+                {item.label}
+              </div>
             </Link>
           )
         })}
@@ -149,7 +155,17 @@ export default function DashboardNav({ user }: DashboardNavProps) {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/dashboard/settings" className="flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleSignOut} 
+              className="cursor-pointer bg-[#FFF1F1] text-[#FA0606] hover:bg-[#FFE5E5] focus:bg-[#FFE5E5] focus:text-[#FA0606]"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

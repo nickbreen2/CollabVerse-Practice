@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'CollabVerse - Creator Collaboration Platform',
+  title: 'CollabLink - Creator Collaboration Platform',
   description: 'Connect and collaborate with creators',
 }
 

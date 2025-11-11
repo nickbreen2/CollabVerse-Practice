@@ -8,9 +8,10 @@ import { CreatorStore } from '@prisma/client'
 interface EditPanelProps {
   store: CreatorStore
   onUpdate: (data: Partial<CreatorStore>) => void
+  onOpenLinkManager?: () => void
 }
 
-export default function EditPanel({ store, onUpdate }: EditPanelProps) {
+export default function EditPanel({ store, onUpdate, onOpenLinkManager }: EditPanelProps) {
   return (
     <Tabs defaultValue="content" className="w-full">
       {/* STICKY HEADER - TABS */}
@@ -30,7 +31,7 @@ export default function EditPanel({ store, onUpdate }: EditPanelProps) {
       {/* SCROLLABLE CONTENT */}
       <div className="px-6 py-6">
         <TabsContent value="content" className="mt-0">
-          <ContentForm store={store} onUpdate={onUpdate} />
+          <ContentForm store={store} onUpdate={onUpdate} onOpenLinkManager={onOpenLinkManager} />
         </TabsContent>
         
         <TabsContent value="design" className="mt-0">

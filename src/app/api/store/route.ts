@@ -42,6 +42,7 @@ export async function PATCH(request: NextRequest) {
     // Validate input
     const result = StoreUpdateSchema.safeParse(body)
     if (!result.success) {
+      console.error('Validation error:', result.error.errors)
       return NextResponse.json(
         { error: result.error.errors[0].message },
         { status: 400 }
@@ -49,6 +50,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updateData = result.data
+    
+    // Log highlights update for debugging
+    if (updateData.highlights) {
+      console.log('Updating highlights:', JSON.stringify(updateData.highlights, null, 2))
+    }
 
     // Update store
     const store = await prisma.creatorStore.update({
@@ -56,15 +62,43 @@ export async function PATCH(request: NextRequest) {
       data: updateData,
     })
 
+    console.log('Store updated successfully, highlights:', store.highlights)
     return NextResponse.json(store)
   } catch (error) {
     console.error('Update store error:', error)
+    
+    // Return more detailed error information
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      
+      // Check for Prisma errors
+      if ('code' in error) {
+        console.error('Prisma error code:', (error as any).code)
+      }
+      
+      // In development, return the actual error message
+      if (process.env.NODE_ENV === 'development') {
+        return NextResponse.json(
+          { 
+            error: error.message,
+            details: error.stack 
+          },
+          { status: 500 }
+        )
+      }
+    }
+    
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
+    
     return NextResponse.json(
       { error: 'An error occurred' },
       { status: 500 }

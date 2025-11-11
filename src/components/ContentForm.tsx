@@ -1,19 +1,24 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Upload, X, Check } from 'lucide-react'
+import { Upload, X, Check, Plus } from 'lucide-react'
 import { CreatorStore } from '@prisma/client'
 import { useDebounce } from '@/hooks/useDebounce'
 import { toast } from '@/components/ui/use-toast'
+import LinkManager from '@/components/store/LinkManager'
+import AddLinkModal from '@/components/store/AddLinkModal'
+import AddedLinksList from '@/components/store/AddedLinksList'
+import { Platform } from '@/lib/platformCategories'
 
 interface ContentFormProps {
   store: CreatorStore
   onUpdate: (data: Partial<CreatorStore>) => void
+  onOpenLinkManager?: () => void
 }
 
 const CONTENT_CATEGORIES = [
@@ -31,24 +36,30 @@ const CONTENT_CATEGORIES = [
   'Education',
 ]
 
-const SOCIAL_NETWORKS = [
-  { key: 'tiktok', label: 'TikTok' },
-  { key: 'instagram', label: 'Instagram' },
-  { key: 'youtube', label: 'YouTube' },
-  { key: 'snapchat', label: 'Snapchat' },
-]
-
-export default function ContentForm({ store, onUpdate }: ContentFormProps) {
+export default function ContentForm({ store, onUpdate, onOpenLinkManager }: ContentFormProps) {
   const [formData, setFormData] = useState({
     displayName: store.displayName || '',
-    location: store.location || '',
     bio: store.bio || '',
   })
   const [categories, setCategories] = useState<string[]>(store.categories || [])
   const [socialLinks, setSocialLinks] = useState<any[]>((store.social as any[]) || [])
   const [uploading, setUploading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showLinkManager, setShowLinkManager] = useState(false)
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Expose the function to parent via callback
+  useEffect(() => {
+    if (onOpenLinkManager) {
+      // This allows parent to trigger opening the link manager
+      (window as any).__openLinkManager = () => setShowLinkManager(true)
+    }
+    return () => {
+      delete (window as any).__openLinkManager
+    }
+  }, [onOpenLinkManager])
 
   // Debounced save
   const debouncedSave = useDebounce((data: any) => {
@@ -123,30 +134,41 @@ export default function ContentForm({ store, onUpdate }: ContentFormProps) {
     debouncedSave({ categories: newCategories })
   }
 
-  const updateSocialLink = (network: string, url: string) => {
-    let newLinks = [...socialLinks]
-    const existingIndex = newLinks.findIndex((l) => l.network === network)
-    
-    if (url.trim() === '') {
-      // Remove if empty
-      if (existingIndex !== -1) {
-        newLinks = newLinks.filter((l) => l.network !== network)
-      }
-    } else {
-      // Add or update
-      if (existingIndex !== -1) {
-        newLinks[existingIndex] = { network, url }
-      } else {
-        newLinks.push({ network, url })
-      }
-    }
-    
-    setSocialLinks(newLinks)
-    debouncedSave({ social: newLinks })
+  const handleSelectPlatform = (platform: Platform) => {
+    setSelectedPlatform(platform)
+    setShowAddModal(true)
   }
 
-  const getSocialUrl = (network: string) => {
-    return socialLinks.find((l) => l.network === network)?.url || ''
+  const handleAddLink = (url: string) => {
+    if (!selectedPlatform) return
+
+    const newLinks = [...socialLinks]
+    const existingIndex = newLinks.findIndex((l) => l.network === selectedPlatform.id)
+
+    if (existingIndex !== -1) {
+      newLinks[existingIndex] = { network: selectedPlatform.id, url }
+    } else {
+      newLinks.push({ network: selectedPlatform.id, url })
+    }
+
+    setSocialLinks(newLinks)
+    debouncedSave({ social: newLinks })
+    
+    toast({
+      title: 'Link added',
+      description: `${selectedPlatform.name} link has been added`,
+    })
+  }
+
+  const handleDeleteLink = (network: string) => {
+    const newLinks = socialLinks.filter((l) => l.network !== network)
+    setSocialLinks(newLinks)
+    debouncedSave({ social: newLinks })
+    
+    toast({
+      title: 'Link removed',
+      description: 'Social link has been removed',
+    })
   }
 
   const initials = formData.displayName
@@ -154,6 +176,30 @@ export default function ContentForm({ store, onUpdate }: ContentFormProps) {
     .map((n) => n[0])
     .join('')
     .toUpperCase() || '?'
+
+  // If showing link manager, render that instead
+  if (showLinkManager) {
+    return (
+      <>
+        <LinkManager
+          onSelectPlatform={handleSelectPlatform}
+          onBack={() => setShowLinkManager(false)}
+          addedPlatformIds={socialLinks.map(link => link.network)}
+          theme={store.theme}
+        />
+        <AddLinkModal
+          platform={selectedPlatform}
+          open={showAddModal}
+          onClose={() => {
+            setShowAddModal(false)
+            setSelectedPlatform(null)
+          }}
+          onAdd={handleAddLink}
+          theme={store.theme}
+        />
+      </>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -212,21 +258,6 @@ export default function ContentForm({ store, onUpdate }: ContentFormProps) {
         </p>
       </div>
 
-      {/* Location */}
-      <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          value={formData.location}
-          onChange={(e) => handleFieldChange('location', e.target.value)}
-          placeholder="City, Country"
-          maxLength={60}
-        />
-        <p className="text-xs text-muted-foreground">
-          {formData.location.length}/60
-        </p>
-      </div>
-
       {/* Bio */}
       <div className="space-y-2">
         <Label htmlFor="bio">Bio</Label>
@@ -244,24 +275,26 @@ export default function ContentForm({ store, onUpdate }: ContentFormProps) {
       </div>
 
       {/* Social Links */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label>Social Media Links</Label>
-        <div className="space-y-3">
-          {SOCIAL_NETWORKS.map((network) => (
-            <div key={network.key}>
-              <Label htmlFor={network.key} className="text-xs text-muted-foreground">
-                {network.label}
-              </Label>
-              <Input
-                id={network.key}
-                value={getSocialUrl(network.key)}
-                onChange={(e) => updateSocialLink(network.key, e.target.value)}
-                placeholder={`https://${network.key}.com/...`}
-                type="url"
-              />
-            </div>
-          ))}
-        </div>
+        
+        {/* Added Links List */}
+        <AddedLinksList 
+          links={socialLinks} 
+          onDelete={handleDeleteLink}
+          theme={store.theme}
+        />
+
+        {/* Add New Link Button */}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => setShowLinkManager(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add a New Link
+        </Button>
       </div>
 
       {/* Categories */}

@@ -2,18 +2,13 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Banner from './Banner'
-import { Instagram, Youtube, Music } from 'lucide-react'
 import { CreatorStore } from '@prisma/client'
+import { getPlatformIcon } from '@/components/icons/PlatformIcons'
+import { getPlatformById } from '@/lib/platformCategories'
+import SocialIconsDisplay from '@/components/store/SocialIconsDisplay'
 
 interface StorePreviewCardProps {
   store: CreatorStore
-}
-
-const socialIcons: Record<string, any> = {
-  instagram: Instagram,
-  youtube: Youtube,
-  tiktok: Music,
-  snapchat: Music, // Using Music as placeholder
 }
 
 export default function StorePreviewCard({ store }: StorePreviewCardProps) {
@@ -32,38 +27,72 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
           : 'bg-black text-white border-gray-800'
       }`}
     >
-      <Banner src={store.bannerUrl || undefined} theme={store.theme} />
-
-      <div className="relative px-8 pb-8 -mt-16">
-        {/* Avatar */}
-        <div className="mb-4">
-          <Avatar className="h-32 w-32 border-4 border-white dark:border-black shadow-xl">
-            <AvatarImage src={store.avatarUrl || undefined} />
-            <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+      {/* Banner with Profile Image as background */}
+      <div className="relative w-full overflow-hidden" style={{ height: '380px' }}>
+        {/* Profile image as background layer (z-0) */}
+        <div className="absolute inset-0 z-0">
+          <Banner theme={store.theme} avatarUrl={store.avatarUrl} initials={initials} />
         </div>
+        
+        {/* LinkMe-style bottom fade overlay (z-10) - Extended to cover text overlap area */}
+        <div 
+          className="absolute left-0 right-0 w-full pointer-events-none z-10"
+          style={{
+            bottom: '-1px',
+            height: '100%',
+            background: store.theme === 'LIGHT'
+              ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 97%, rgba(255,255,255,0.7) 98%, rgba(255,255,255,1) 99%, #FFFFFF 99%)'
+              : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 97%, rgba(0,0,0,0.7) 98%, rgba(0,0,0,1) 99%, #000000 99%)'
+          }}
+        />
+      </div>
 
+      <div className="relative z-20 px-8 pb-8 pt-4 -mt-10">
+        {/* Background that starts where text begins */}
+        <div className={`absolute inset-0 ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-black'}`} style={{ top: '20px', zIndex: 1 }} />
+        
+        {/* Gradient overlay to cover the split between banner and background */}
+        <div 
+          className="absolute left-0 right-0 w-full pointer-events-none"
+          style={{
+            top: '-15px',
+            height: '60px',
+            zIndex: 10,
+            background: store.theme === 'LIGHT'
+              ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 15%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.88) 45%, rgba(255,255,255,0.96) 60%, rgba(255,255,255,1) 70%, #FFFFFF 100%)'
+              : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.88) 45%, rgba(0,0,0,0.96) 60%, rgba(0,0,0,1) 70%, #000000 100%)'
+          }}
+        />
+        
         {/* Profile Info */}
-        <div className="space-y-4">
+        <div className="space-y-4 relative" style={{ zIndex: 20 }}>
           <div>
             <h2 className="text-3xl font-bold">
               {store.displayName || 'Your Name'}
             </h2>
-            {store.location && (
-              <p className="text-sm text-muted-foreground mt-1">
-                📍 {store.location}
+            
+            {/* Username */}
+            {store.handle && (
+              <p className="text-sm text-gray-500 mt-1">
+                @{store.handle}
               </p>
             )}
+            
           </div>
+
+          {/* Social Links */}
+          {social.length > 0 && (
+            <div className="flex justify-center items-center gap-3 pt-4">
+              <SocialIconsDisplay links={social} theme={store.theme} />
+            </div>
+          )}
 
           {store.bio && (
             <p className="text-sm leading-relaxed">{store.bio}</p>
           )}
 
-          {/* Categories */}
-          {store.categories && store.categories.length > 0 && (
+          {/* Categories - COMMENTED OUT TO HIDE FROM STORE DISPLAY */}
+          {/* {store.categories && store.categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {store.categories.map((category, index) => (
                 <span
@@ -78,31 +107,7 @@ export default function StorePreviewCard({ store }: StorePreviewCardProps) {
                 </span>
               ))}
             </div>
-          )}
-
-          {/* Social Links */}
-          {social.length > 0 && (
-            <div className="flex gap-3 pt-2">
-              {social.map((link: any, index: number) => {
-                const Icon = socialIcons[link.network.toLowerCase()] || Instagram
-                return (
-                  <a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`p-3 rounded-full transition-colors ${
-                      store.theme === 'LIGHT'
-                        ? 'bg-gray-100 hover:bg-gray-200'
-                        : 'bg-gray-800 hover:bg-gray-700'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </a>
-                )
-              })}
-            </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
