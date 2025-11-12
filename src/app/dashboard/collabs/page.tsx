@@ -174,7 +174,14 @@ export default function CollabsPage() {
       return true
     })
     .sort((a, b) => {
-      // Apply sorting based on filter option
+      // Always prioritize pinned items first, regardless of filter option
+      const pinnedA = (a as any).pinned ? 1 : 0
+      const pinnedB = (b as any).pinned ? 1 : 0
+      if (pinnedA !== pinnedB) {
+        return pinnedB - pinnedA // Pinned items come first
+      }
+
+      // Apply secondary sorting based on filter option
       if (filterOption === 'amount') {
         const budgetA = a.budget || 0
         const budgetB = b.budget || 0
@@ -185,12 +192,7 @@ export default function CollabsPage() {
         const dateB = new Date(b.createdAt).getTime()
         return dateB - dateA
       } else if (filterOption === 'pinned') {
-        // Pinned items first, then by date
-        const pinnedA = (a as any).pinned ? 1 : 0
-        const pinnedB = (b as any).pinned ? 1 : 0
-        if (pinnedA !== pinnedB) {
-          return pinnedB - pinnedA
-        }
+        // Already sorted by pinned status above, now sort by date
         const dateA = new Date(a.createdAt).getTime()
         const dateB = new Date(b.createdAt).getTime()
         return dateB - dateA
@@ -251,7 +253,7 @@ export default function CollabsPage() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="gap-2" style={{ color: '#64738b' }}>
+                      <Button variant="outline" className="gap-2 font-normal" style={{ color: '#64738b' }}>
                         {filterOption === 'recent' && 'Recent'}
                         {filterOption === 'pinned' && 'Pinned'}
                         {filterOption === 'amount' && 'Sort by Amount'}

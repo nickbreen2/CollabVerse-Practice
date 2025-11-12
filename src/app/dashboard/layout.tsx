@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import DashboardNav from '@/components/DashboardNav'
+import ConditionalNav from '@/components/ConditionalNav'
 
 export default async function DashboardLayout({
   children,
@@ -76,7 +76,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      <DashboardNav 
+      <ConditionalNav 
         user={userData} 
         pendingCollabCount={pendingCount}
         totalCollabCount={totalCollabCount}
