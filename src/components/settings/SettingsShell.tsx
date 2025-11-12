@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Search, User, Link2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { Search, User, Link2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ConnectedAccountsSection from "./ConnectedAccountsSection";
@@ -93,6 +95,15 @@ export default function SettingsShell({ user }: SettingsShellProps) {
         {/* Left navigation - Desktop */}
         <aside className="hidden lg:flex w-80 flex-col border-r bg-white dark:bg-gray-950 h-full">
           <div className="p-6 border-b">
+            <Link href="/dashboard/my-store">
+              <Button
+                variant="ghost"
+                className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to app
+              </Button>
+            </Link>
             <h1 className="text-2xl font-bold mb-4">Settings</h1>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
