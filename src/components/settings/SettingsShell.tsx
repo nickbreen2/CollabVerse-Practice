@@ -86,12 +86,14 @@ export default function SettingsShell({ user }: SettingsShellProps) {
 
   return (
     <div className="h-full overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
-      {/* Header */}
-      <DashboardHeader
-        title="Settings"
-        subtitle="Manage your account settings"
-        showHandleBar={false}
-      />
+      {/* Header - Only show on mobile, hidden on desktop since sidebar has title */}
+      <div className="lg:hidden">
+        <DashboardHeader
+          title="Settings"
+          subtitle="Manage your account settings"
+          showHandleBar={false}
+        />
+      </div>
 
       {/* Mobile horizontal scrollable tabs */}
       <div className="lg:hidden border-b bg-white dark:bg-gray-950 overflow-x-auto scrollbar-hide">
