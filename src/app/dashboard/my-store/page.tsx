@@ -674,11 +674,11 @@ export default function MyStorePage() {
                             w-11 h-11 rounded-full 
                             flex items-center justify-center
                             transition-all duration-200
-                            bg-[linear-gradient(to_bottom_right,#7341FB_0%,#9D69FF_35%,#EA67FF_69%,#FFDD2B_93%)]
+                            bg-[#0e172a]
                             hover:opacity-90
                             hover:scale-105
-                            hover:shadow-lg hover:shadow-purple-500/50
-                            focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
+                            hover:shadow-lg hover:shadow-[#0e172a]/50
+                            focus:outline-none focus:ring-2 focus:ring-[#0e172a] focus:ring-offset-2
                             text-white
                             shadow-md
                             flex-shrink-0

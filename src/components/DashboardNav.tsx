@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { Store, Users, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown, Settings } from 'lucide-react'
+import { Store, SendHorizontal, BarChart3, LogOut, MessageSquareText, Bug, Lightbulb, ChevronDown, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +25,7 @@ const navItems = [
   {
     label: 'Collabs',
     href: '/dashboard/collabs',
-    icon: Users,
+    icon: SendHorizontal,
   },
   {
     label: 'Analytics',
@@ -173,7 +173,7 @@ export default function DashboardNav({ user, pendingCollabCount = 0, totalCollab
       <aside className="hidden lg:flex w-64 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex-col h-screen sticky top-0">
         <div className="p-6 flex-shrink-0">
           <Image 
-            src="/icons/collablink.svg" 
+            src="/icons/final-collablink-logo.svg" 
             alt="CollabLink" 
             width={200} 
             height={60}

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/use-toast'
 
@@ -62,7 +63,7 @@ export default function SignInPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/icons/collablink.svg"
+              src="/icons/final-collablink-logo.svg"
               alt="CollabLink"
               width={268}
               height={56}
@@ -92,9 +93,8 @@ export default function SignInPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) =>
@@ -118,6 +118,18 @@ export default function SignInPage() {
               className="text-primary hover:underline font-medium"
             >
               Sign up
+            </Link>
+          </div>
+
+          <div className="mt-4 text-center text-sm">
+            <span className="text-muted-foreground">
+              Forgot your password?{' '}
+            </span>
+            <Link
+              href="/auth/forgot-password"
+              className="text-primary hover:underline font-medium"
+            >
+              Reset password
             </Link>
           </div>
         </div>

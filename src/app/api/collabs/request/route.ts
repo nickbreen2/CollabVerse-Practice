@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { CollabRequestSchema } from '@/lib/validations'
 import { extractEmailDomain } from '@/lib/brandfetch'
 import { z } from 'zod'
+import {
+  sendCollabRequestEmailToCreator,
+  sendCollabRequestConfirmationEmail,
+} from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,32 +93,25 @@ export async function POST(request: NextRequest) {
       linksCount: collabRequest.links?.length || 0
     })
 
-    // TODO: Send Brevo email notification
-    // This is a stub for now - actual implementation will be added later
+    // Send Brevo email notification
     try {
-      console.log('📧 Brevo Email Notification:')
-      console.log(`  To: ${creator.user.email}`)
-      console.log(`  CC: ${validatedData.senderEmail}`)
-      console.log(`  Subject: New Collaboration Request from ${validatedData.senderName}`)
-      console.log(`  Brand: ${validatedData.brandName || 'N/A'}`)
-      console.log(`  Budget: ${validatedData.budget || 'N/A'}`)
-      console.log(`  Description: ${validatedData.description || 'N/A'}`)
-      console.log(`  Links: ${validatedData.links?.join(', ') || 'None'}`)
-      
-      // When Brevo is set up, call the email service here:
-      // await sendCollabRequestEmail({
-      //   to: creator.user.email,
-      //   cc: validatedData.senderEmail,
-      //   templateId: process.env.BREVO_COLLAB_REQUEST_TEMPLATE_ID,
-      //   params: {
-      //     creatorName: creator.displayName,
-      //     senderName: validatedData.senderName,
-      //     brandName: validatedData.brandName,
-      //     budget: validatedData.budget,
-      //     description: validatedData.description,
-      //     links: validatedData.links,
-      //   },
-      // })
+      await sendCollabRequestEmailToCreator(
+        creator.user.email,
+        creator.displayName || 'Creator',
+        validatedData.senderName,
+        validatedData.senderEmail,
+        validatedData.brandName || undefined,
+        validatedData.budget ? Number(validatedData.budget) : undefined,
+        validatedData.description || undefined,
+        linksArray.length > 0 ? linksArray : undefined
+      )
+
+      // Also send confirmation to sender
+      await sendCollabRequestConfirmationEmail(
+        validatedData.senderEmail,
+        validatedData.senderName,
+        creator.displayName || 'Creator'
+      )
     } catch (emailError) {
       console.warn('⚠️  Email notification failed (non-critical):', emailError)
       // Continue - don't fail the request if email fails

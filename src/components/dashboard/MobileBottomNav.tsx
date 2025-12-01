@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Store, Users, BarChart3 } from 'lucide-react'
+import { Store, SendHorizontal, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -14,7 +14,7 @@ const navItems = [
   {
     label: 'Collabs',
     href: '/dashboard/collabs',
-    icon: Users,
+    icon: SendHorizontal,
   },
   {
     label: 'Analytics',

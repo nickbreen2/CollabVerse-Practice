@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/use-toast'
 import { Link2, Mail, Lock, User, ChevronDown } from 'lucide-react'
@@ -127,7 +128,7 @@ export default function SignUpPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/icons/collablink.svg"
+              src="/icons/final-collablink-logo.svg"
               alt="CollabLink"
               width={268}
               height={56}
@@ -196,10 +197,9 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <PasswordInput
                   id="password"
-                  type="password"
                   className="pl-10"
                   placeholder="••••••••"
                   value={formData.password}

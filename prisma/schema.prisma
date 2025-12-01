@@ -8,17 +8,24 @@ datasource db {
 }
 
 model User {
-  id                  String        @id @default(cuid())
-  email               String        @unique
-  passwordHash        String
-  role                Role          @default(CREATOR)
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  accountStatus       AccountStatus @default(ACTIVE)
-  birthDate           DateTime?
-  name                String?
-  scheduledDeletionAt DateTime?
-  store               CreatorStore?
+  id                    String        @id @default(cuid())
+  email                 String        @unique
+  passwordHash          String
+  role                  Role          @default(CREATOR)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  accountStatus         AccountStatus @default(ACTIVE)
+  birthDate             DateTime?
+  name                  String?
+  scheduledDeletionAt   DateTime?
+  store                 CreatorStore?
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+  emailVerificationToken String?
+  emailVerified         Boolean       @default(false)
+  pendingEmail          String?
+  pendingEmailToken     String?
+  pendingEmailExpires   DateTime?
 }
 
 model CreatorStore {
