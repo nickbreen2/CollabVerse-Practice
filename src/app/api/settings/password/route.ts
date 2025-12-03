@@ -44,6 +44,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if user has a password (OAuth users might not have one)
+    if (!user.passwordHash) {
+      return NextResponse.json(
+        { error: 'Account does not have a password set. Please set a password first.' },
+        { status: 400 }
+      )
+    }
+
     // Verify current password
     const isValid = await bcrypt.compare(currentPassword, user.passwordHash)
     if (!isValid) {
