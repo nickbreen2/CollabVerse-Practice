@@ -206,6 +206,9 @@ export default function MyStorePage() {
     )
   }
 
+  // Ensure theme is always valid (fallback to DARK if null/undefined/invalid)
+  const theme: 'LIGHT' | 'DARK' = store.theme === 'LIGHT' || store.theme === 'DARK' ? store.theme : 'DARK'
+
   const isEditing = mode === 'edit'
   const handleToggle = () => {
     const newMode = mode === 'preview' ? 'edit' : 'preview'
@@ -515,7 +518,7 @@ export default function MyStorePage() {
                   ring-0 lg:ring-1 ring-black/10 dark:ring-white/10
                   h-fit
                   transition-[box-shadow] duration-300 ease-in-out
-                  ${store.theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
+                  ${theme === 'LIGHT' ? 'bg-white text-black' : 'bg-black text-white border-gray-800'}
                   ${isEditing ? 'shadow-xl' : ''}
                 `}
                 style={!isEditing ? {
@@ -526,7 +529,7 @@ export default function MyStorePage() {
               <div className="relative w-full overflow-hidden group" style={{ height: '380px' }}>
                 {/* Profile image as background layer (z-0) */}
                 <div className="absolute inset-0 z-0">
-                  <Banner theme={store.theme} avatarUrl={store.avatarUrl} initials={initials} />
+                  <Banner theme={theme} avatarUrl={store.avatarUrl} initials={initials} />
                 </div>
                 
                 {/* LinkMe-style bottom fade overlay (z-10) - Extended to cover text overlap area */}
@@ -535,7 +538,7 @@ export default function MyStorePage() {
                   style={{
                     bottom: '-1px',
                     height: '100%',
-                    background: store.theme === 'LIGHT'
+                    background: theme === 'LIGHT'
                       ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,0.2) 88%, rgba(255,255,255,0.5) 91%, rgba(255,255,255,0.75) 94%, rgba(255,255,255,0.9) 97%, rgba(255,255,255,1) 100%, #FFFFFF 100%)'
                       : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 85%, rgba(0,0,0,0.2) 88%, rgba(0,0,0,0.5) 91%, rgba(0,0,0,0.75) 94%, rgba(0,0,0,0.9) 97%, rgba(0,0,0,1) 100%, #000000 100%)'
                   }}
@@ -585,7 +588,7 @@ export default function MyStorePage() {
                 `}
               >
                 {/* Background that starts where text begins */}
-                <div className={`absolute inset-0 ${store.theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}`} style={{ top: '200px', zIndex: 1 }} />
+                <div className={`absolute inset-0 ${theme === 'LIGHT' ? 'bg-white' : 'bg-gradient-to-b from-black via-black/95 to-black'}`} style={{ top: '200px', zIndex: 1 }} />
                 
                 {/* Gradient overlay to cover the split between banner and background */}
                 <div 
@@ -594,7 +597,7 @@ export default function MyStorePage() {
                     top: '40px',
                     height: '160px',
                     zIndex: 10,
-                    background: store.theme === 'LIGHT'
+                    background: theme === 'LIGHT'
                       ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0.6) 85%, rgba(255,255,255,0.85) 90%, rgba(255,255,255,1) 100%)'
                       : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0.6) 85%, rgba(0,0,0,0.85) 90%, rgba(0,0,0,1) 100%)'
                   }}
@@ -626,7 +629,7 @@ export default function MyStorePage() {
                   {/* Username */}
                   {store.handle && (
                     <p 
-                      className={`text-sm mt-1 ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'} ${
+                      className={`text-sm mt-1 ${theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'} ${
                         isEditing 
                           ? 'cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-[#D4D7DC] transition-all' 
                           : ''
@@ -654,7 +657,7 @@ export default function MyStorePage() {
                       links={social} 
                       isEditMode={isEditing}
                       onEditClick={handleEditPlatform}
-                      theme={store?.theme}
+                      theme={theme}
                       />
                       
                       {/* QUICK ADD LINK BUTTON - Edit mode only */}
@@ -704,7 +707,7 @@ export default function MyStorePage() {
                         }}
                         className={`
                           w-full rounded-xl
-                          ${store.theme === 'LIGHT'
+                          ${theme === 'LIGHT'
                             ? 'bg-[#F8FAFB] border border-gray-200'
                             : 'bg-gray-900 border border-gray-800'
                           }
@@ -713,7 +716,7 @@ export default function MyStorePage() {
                         {/* Header Row */}
                         <div className="flex items-center justify-between px-5 py-3.5">
                           <span className="font-bold text-sm">Bio</span>
-                          <ChevronRight className={`h-5 w-5 ${store.theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
+                          <ChevronRight className={`h-5 w-5 ${theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
                         </div>
                         
                         {/* Content */}
@@ -723,7 +726,7 @@ export default function MyStorePage() {
                               {store.bio}
                             </p>
                           ) : (
-                            <p className={`text-sm ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-400'} text-center`}>
+                            <p className={`text-sm ${theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-400'} text-center`}>
                               Add bio to your profile
                             </p>
                           )}
@@ -761,7 +764,7 @@ export default function MyStorePage() {
                           <span
                             key={index}
                             className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                              store.theme === 'LIGHT'
+                              theme === 'LIGHT'
                                 ? 'bg-gray-100 text-gray-800'
                                 : 'bg-gray-800 text-gray-200'
                             } ${
@@ -788,7 +791,7 @@ export default function MyStorePage() {
                         <div
                           className={`
                             w-full rounded-xl
-                            ${store.theme === 'LIGHT'
+                            ${theme === 'LIGHT'
                               ? 'bg-[#F8FAFB] border border-gray-200'
                               : 'bg-gray-900 border border-gray-800'
                             }
@@ -820,10 +823,10 @@ export default function MyStorePage() {
                                 className="p-1 hover:opacity-80 transition-opacity"
                                 aria-label="Add new link"
                               >
-                                <Plus className={`h-5 w-5 ${store.theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
+                                <Plus className={`h-5 w-5 ${theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
                               </button>
                               {isMobile && !isEditing && (
-                                <ChevronRight className={`h-5 w-5 ${store.theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
+                                <ChevronRight className={`h-5 w-5 ${theme === 'LIGHT' ? 'text-gray-400' : 'text-gray-500'}`} />
                               )}
                             </div>
                           </button>
@@ -868,7 +871,7 @@ export default function MyStorePage() {
                                     <>
                                       <div className="absolute inset-0 flex items-center justify-center">
                                         <img
-                                          src={getIconUrlForBackground(link.customIconUrl, platformIcon, store?.theme)}
+                                          src={getIconUrlForBackground(link.customIconUrl, platformIcon, theme)}
                                           alt="Icon background"
                                           className="w-3/4 h-3/4 object-contain opacity-30"
                                         />
@@ -888,7 +891,7 @@ export default function MyStorePage() {
                                       className="h-8 w-8 rounded-lg object-cover shadow-lg"
                                     />
                                   ) : (
-                                    <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" theme={store?.theme} />
+                                    <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" theme={theme} />
                                   )}
                                 </div>
                                 
@@ -909,7 +912,7 @@ export default function MyStorePage() {
                                     className={`
                                       h-8 w-8 flex items-center justify-center rounded-full
                                       transition-all duration-200
-                                      ${store.theme === 'LIGHT'
+                                      ${theme === 'LIGHT'
                                         ? 'hover:bg-gray-200 text-gray-600'
                                         : 'hover:bg-gray-700 text-gray-400'
                                       }
@@ -967,7 +970,7 @@ export default function MyStorePage() {
                               className={`
                                 flex items-center gap-3 w-full px-6 py-4 rounded-xl font-medium
                                 transition-all duration-200
-                                ${store.theme === 'LIGHT'
+                                ${theme === 'LIGHT'
                                   ? 'bg-gray-100 text-gray-900'
                                   : 'bg-gray-800 text-white'
                                 }
@@ -981,7 +984,7 @@ export default function MyStorePage() {
                                   className="h-8 w-8 flex-shrink-0 rounded-lg object-cover"
                                 />
                               ) : (
-                                <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" theme={store?.theme} />
+                                <PlatformIcon iconName={platformIcon} className="h-8 w-8 flex-shrink-0" theme={theme} />
                               )}
                               <button
                                 onClick={() => handleEditCustomLink(link.id)}
@@ -997,7 +1000,7 @@ export default function MyStorePage() {
                                     className={`
                                       h-8 w-8 flex items-center justify-center rounded-full
                                       transition-all duration-200
-                                      ${store.theme === 'LIGHT'
+                                      ${theme === 'LIGHT'
                                         ? 'hover:bg-gray-200 text-gray-600'
                                         : 'hover:bg-gray-700 text-gray-400'
                                       }
@@ -1061,7 +1064,7 @@ export default function MyStorePage() {
                             w-full px-6 py-8 rounded-xl border-2 border-dashed
                             transition-all duration-200
                             hover:scale-[1.02] hover:shadow-lg
-                            ${store.theme === 'LIGHT'
+                            ${theme === 'LIGHT'
                               ? 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-600'
                               : 'border-gray-700 hover:border-gray-600 hover:bg-gray-900/50 text-gray-400'
                             }
@@ -1070,7 +1073,7 @@ export default function MyStorePage() {
                         >
                           <Plus className="h-6 w-6" />
                           <p className="font-medium">Add Link</p>
-                          <p className={`text-xs ${store.theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'}`}>
+                          <p className={`text-xs ${theme === 'LIGHT' ? 'text-gray-500' : 'text-gray-500'}`}>
                             Click here to add content
                           </p>
                         </button>
@@ -1124,7 +1127,7 @@ export default function MyStorePage() {
                                       }} />
                                       {/* Icon - more prominent */}
                                       <img
-                                        src={getIconUrlForBackground(link.customIconUrl, platformIcon, store?.theme)}
+                                        src={getIconUrlForBackground(link.customIconUrl, platformIcon, theme)}
                                         alt="Icon background"
                                         className="w-2/3 h-2/3 object-contain opacity-60 relative z-10"
                                       />
@@ -1146,7 +1149,7 @@ export default function MyStorePage() {
                                     className="h-8 w-8 rounded-lg object-cover shadow-lg"
                                   />
                                 ) : (
-                                  <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" theme={store?.theme} />
+                                  <PlatformIcon iconName={displayIcon} className="h-8 w-8 drop-shadow-lg" theme={theme} />
                                 )}
                               </div>
                               
@@ -1172,7 +1175,7 @@ export default function MyStorePage() {
                             className={`
                               flex items-center gap-3 w-full px-6 py-4 rounded-xl font-medium
                               transition-all duration-200
-                              ${store.theme === 'LIGHT'
+                              ${theme === 'LIGHT'
                                 ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                                 : 'bg-gray-800 hover:bg-gray-700 text-white'
                               }
@@ -1211,7 +1214,7 @@ export default function MyStorePage() {
               <ConnectCTA
                 avatarUrl={store.avatarUrl || undefined}
                 displayName={store.displayName || undefined}
-                theme={store.theme}
+                theme={theme}
                 isEditMode={false}
                 onConnect={handleConnect}
                 sticky={false}
@@ -1268,7 +1271,7 @@ export default function MyStorePage() {
         onClose={() => setShowLinkManagerModal(false)}
         onSelectPlatform={handleSelectPlatform}
         addedPlatformIds={social.map(link => link.network)}
-        theme={store?.theme}
+        theme={theme}
       />
 
       {/* ADD LINK MODAL (for entering URL) */}
@@ -1280,7 +1283,7 @@ export default function MyStorePage() {
           setSelectedPlatform(null)
         }}
         onAdd={handleAddLink}
-        theme={store?.theme}
+        theme={theme}
       />
 
       {/* DISPLAY NAME EDIT MODAL */}

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/use-toast'
+import { Chrome } from 'lucide-react'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -63,10 +64,10 @@ export default function SignInPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/icons/final-collablink-logo.svg"
+              src="/icons/collablink-full-logo.svg"
               alt="CollabLink"
-              width={268}
-              height={56}
+              width={300}
+              height={64}
               priority
             />
           </div>
@@ -108,6 +109,29 @@ export default function SignInPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
+
+          <div className="relative mt-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-gray-950 px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full mt-6"
+            onClick={() => {
+              window.location.href = '/api/auth/google'
+            }}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Sign in with Google
+          </Button>
 
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">

@@ -173,7 +173,7 @@ export default function DashboardNav({ user, pendingCollabCount = 0, totalCollab
       <aside className="hidden lg:flex w-64 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex-col h-screen sticky top-0">
         <div className="p-6 flex-shrink-0">
           <Image 
-            src="/icons/final-collablink-logo.svg" 
+            src="/icons/collablink-full-logo.svg" 
             alt="CollabLink" 
             width={200} 
             height={60}

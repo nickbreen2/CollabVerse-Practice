@@ -10,7 +10,7 @@ datasource db {
 model User {
   id                    String        @id @default(cuid())
   email                 String        @unique
-  passwordHash          String
+  passwordHash          String?
   role                  Role          @default(CREATOR)
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
@@ -26,6 +26,8 @@ model User {
   pendingEmail          String?
   pendingEmailToken     String?
   pendingEmailExpires   DateTime?
+  googleId              String?       @unique
+  provider              String?
 }
 
 model CreatorStore {

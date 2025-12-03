@@ -93,7 +93,7 @@ function ResetPasswordForm() {
           <div className="text-center">
             <div className="flex justify-center mb-4">
               <Image
-                src="/icons/final-collablink-logo.svg"
+                src="/icons/collablink-full-logo.svg"
                 alt="CollabLink"
                 width={268}
                 height={56}
@@ -129,7 +129,7 @@ function ResetPasswordForm() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/icons/final-collablink-logo.svg"
+              src="/icons/collablink-full-logo.svg"
               alt="CollabLink"
               width={268}
               height={56}
@@ -203,7 +203,7 @@ export default function ResetPasswordPage() {
           <div className="text-center">
             <div className="flex justify-center mb-4">
               <Image
-                src="/icons/final-collablink-logo.svg"
+                src="/icons/collablink-full-logo.svg"
                 alt="CollabLink"
                 width={268}
                 height={56}

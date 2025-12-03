@@ -128,10 +128,10 @@ export default function SignUpPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/icons/final-collablink-logo.svg"
+              src="/icons/collablink-logo-only.svg"
               alt="CollabLink"
-              width={268}
-              height={56}
+              width={64}
+              height={64}
               priority
             />
           </div>
