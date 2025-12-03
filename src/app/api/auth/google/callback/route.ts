@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 const RESERVED_HANDLES = [
   'admin', 'api', 'login', 'signup', 'dashboard', 'collablink', 
@@ -211,7 +212,7 @@ export async function GET(request: NextRequest) {
         console.error('DB error stack:', dbError.stack)
         
         // Handle Prisma unique constraint violation
-        if (dbError.code === 'P2002') {
+        if (dbError instanceof PrismaClientKnownRequestError && dbError.code === 'P2002') {
           const target = Array.isArray(dbError.meta?.target) 
             ? dbError.meta.target[0] 
             : dbError.meta?.target
@@ -251,8 +252,8 @@ export async function GET(request: NextRequest) {
               {
                 error: 'Database error',
                 message: dbError.message,
-                code: dbError.code,
-                meta: dbError.meta,
+                code: dbError instanceof PrismaClientKnownRequestError ? dbError.code : undefined,
+                meta: dbError instanceof PrismaClientKnownRequestError ? dbError.meta : undefined,
               },
               { status: 500 }
             )
