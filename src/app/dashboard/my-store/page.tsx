@@ -526,7 +526,7 @@ export default function MyStorePage() {
                 } : {}}
               >
               {/* Banner/header area with profile image as background */}
-              <div className="relative w-full overflow-hidden group" style={{ height: '380px' }}>
+              <div className="relative w-full overflow-hidden group" style={{ height: '450px' }}>
                 {/* Profile image as background layer (z-0) */}
                 <div className="absolute inset-0 z-0">
                   <Banner theme={theme} avatarUrl={store.avatarUrl} initials={initials} />
@@ -537,10 +537,10 @@ export default function MyStorePage() {
                   className="absolute left-0 right-0 w-full pointer-events-none z-10"
                   style={{
                     bottom: '-1px',
-                    height: '100%',
+                    height: '15%',
                     background: theme === 'LIGHT'
-                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,0.2) 88%, rgba(255,255,255,0.5) 91%, rgba(255,255,255,0.75) 94%, rgba(255,255,255,0.9) 97%, rgba(255,255,255,1) 100%, #FFFFFF 100%)'
-                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 85%, rgba(0,0,0,0.2) 88%, rgba(0,0,0,0.5) 91%, rgba(0,0,0,0.75) 94%, rgba(0,0,0,0.9) 97%, rgba(0,0,0,1) 100%, #000000 100%)'
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 80%, rgba(255,255,255,0.02) 85%, rgba(255,255,255,0.06) 90%, rgba(255,255,255,0.15) 93%, rgba(255,255,255,0.3) 96%, rgba(255,255,255,0.55) 98%, rgba(255,255,255,0.85) 99.5%, rgba(255,255,255,1) 100%, #FFFFFF 100%)'
+                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.02) 85%, rgba(0,0,0,0.06) 90%, rgba(0,0,0,0.15) 93%, rgba(0,0,0,0.3) 96%, rgba(0,0,0,0.55) 98%, rgba(0,0,0,0.85) 99.5%, rgba(0,0,0,1) 100%, #000000 100%)'
                   }}
                 />
                 
@@ -594,12 +594,12 @@ export default function MyStorePage() {
                 <div 
                   className="absolute left-0 right-0 w-full pointer-events-none"
                   style={{
-                    top: '40px',
-                    height: '160px',
+                    top: '300px',
+                    height: '110px',
                     zIndex: 10,
                     background: theme === 'LIGHT'
-                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0.6) 85%, rgba(255,255,255,0.85) 90%, rgba(255,255,255,1) 100%)'
-                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0.6) 85%, rgba(0,0,0,0.85) 90%, rgba(0,0,0,1) 100%)'
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.08) 88%, rgba(255,255,255,0.2) 93%, rgba(255,255,255,0.45) 96.5%, rgba(255,255,255,0.75) 98.5%, rgba(255,255,255,1) 100%)'
+                      : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.02) 80%, rgba(0,0,0,0.08) 88%, rgba(0,0,0,0.2) 93%, rgba(0,0,0,0.45) 96.5%, rgba(0,0,0,0.75) 98.5%, rgba(0,0,0,1) 100%)'
                   }}
                 />
                 
