@@ -16,7 +16,7 @@ export default function Banner({ src, avatarUrl, initials, theme }: BannerProps)
   const imageSrc = avatarUrl || src
 
   return (
-    <div className={`relative h-full w-full overflow-hidden ${bgColor}`}>
+    <div className={`relative h-full w-full overflow-hidden ${bgColor}`} style={{ border: 'none', outline: 'none' }}>
       {imageSrc ? (
         <Image
           src={imageSrc}

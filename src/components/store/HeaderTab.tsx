@@ -230,7 +230,7 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="flex-1 overflow-y-auto px-6 py-6 pb-24 md:pb-6">
         <div className="space-y-6">
 
           {/* Profile Image */}
@@ -322,23 +322,18 @@ export default function HeaderTab({ store, onUpdate, onBack }: HeaderTabProps) {
               </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Fixed Save Button Footer - Shows when there are changes */}
-      {hasChanges && (
-        <div className="flex-shrink-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+          {/* Save Button */}
           <Button 
             onClick={handleSave}
-            disabled={isSaving || isCheckingHandle || !!handleError}
             className="w-full"
-            size="lg"
+            disabled={!hasChanges || isSaving || isCheckingHandle || !!handleError}
             variant="gradient"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
-      )}
+      </div>
     </div>
   )
 }

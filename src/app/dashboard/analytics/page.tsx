@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-[1180px] px-4 py-6 space-y-6">
           {/* Top Actions */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 md:gap-0">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"

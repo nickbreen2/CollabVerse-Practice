@@ -215,34 +215,36 @@ export default function CollabRequestModal({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center pt-8 pb-6 px-6">
-          {/* Creator Avatar */}
-          <div className="relative h-20 w-20 rounded-full overflow-hidden mb-4 ring-4 ring-gray-100 dark:ring-gray-800">
-            {creatorAvatar ? (
-              <Image
-                src={creatorAvatar}
-                alt={creatorName || 'Creator'}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-fuchsia-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
-                {creatorName?.charAt(0)?.toUpperCase() || '?'}
-              </div>
-            )}
+      <DialogContent className="max-w-md w-full mx-auto p-0 gap-0 flex flex-col overflow-hidden max-h-[90vh] lg:max-h-[85vh]">
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Header */}
+          <div className="flex flex-col items-center text-center pt-8 pb-6 px-4 sm:px-6 flex-shrink-0">
+            {/* Creator Avatar */}
+            <div className="relative h-20 w-20 rounded-full overflow-hidden mb-4 ring-4 ring-gray-100 dark:ring-gray-800">
+              {creatorAvatar ? (
+                <Image
+                  src={creatorAvatar}
+                  alt={creatorName || 'Creator'}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-fuchsia-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
+                  {creatorName?.charAt(0)?.toUpperCase() || '?'}
+                </div>
+              )}
+            </div>
+
+            {/* Title & Subtitle */}
+            <h2 className="text-2xl font-bold mb-2">Request Collaboration</h2>
+            <p className="text-sm text-muted-foreground">
+              Drop me a message below
+            </p>
           </div>
 
-          {/* Title & Subtitle */}
-          <h2 className="text-2xl font-bold mb-2">Request Collaboration</h2>
-          <p className="text-sm text-muted-foreground">
-            Drop me a message below
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="px-4 sm:px-6 pb-6 sm:pb-8 space-y-4">
           {/* Full Name */}
           <div>
             <div className="relative">
@@ -419,6 +421,7 @@ export default function CollabRequestModal({
             )}
           </Button>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

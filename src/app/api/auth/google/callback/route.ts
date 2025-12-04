@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
               userId: u.id,
               handle,
               displayName: name || normalizedEmail.split('@')[0],
-              avatarUrl: '/icons/Profile Image theme colors-not saturated-2.svg',
+              avatarUrl: '/icons/default profile image.png',
               theme: 'DARK',
               social: undefined, // Explicitly set to undefined to match regular sign-up behavior
             },

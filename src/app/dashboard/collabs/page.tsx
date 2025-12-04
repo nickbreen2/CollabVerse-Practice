@@ -306,7 +306,7 @@ export default function CollabsPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          <span className="hidden md:inline text-sm text-muted-foreground whitespace-nowrap">
                             {getTimeAgo(request.createdAt)}
                           </span>
                           <button
@@ -333,6 +333,9 @@ export default function CollabsPage() {
                     </div>
 
                   <div className="space-y-2 text-sm">
+                    <div className="md:hidden text-sm text-muted-foreground">
+                      {getTimeAgo(request.createdAt)}
+                    </div>
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-muted-foreground" />
                       <a

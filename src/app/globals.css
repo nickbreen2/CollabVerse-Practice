@@ -85,9 +85,17 @@
   
   /* Remove borders from Next.js Image components and their wrapper elements */
   span[style*="position: relative"] img,
-  span[style*="position: relative"] {
+  span[style*="position: relative"],
+  /* More comprehensive selectors for Next.js Image wrappers */
+  span[data-next-image],
+  img[data-next-image],
+  /* Target any span that contains an image with Next.js styling */
+  span > img[style*="object-fit"],
+  /* Remove all borders and outlines from images */
+  img {
     border: none !important;
     outline: none !important;
+    box-shadow: none !important;
   }
   
   /* Safe area padding utilities */
