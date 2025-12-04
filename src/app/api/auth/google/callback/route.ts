@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
+// Force dynamic rendering since we use searchParams
+export const dynamic = 'force-dynamic'
+
 const RESERVED_HANDLES = [
   'admin', 'api', 'login', 'signup', 'dashboard', 'collablink', 
   'www', 'auth', 'signin', 'signout'
